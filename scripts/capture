@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+user_dir="${HOME}"
+
+{
+  echo "# Applications found in /Applications and ~/Applications"
+  echo "# Captured: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+  echo
+  find /Applications "$user_dir/Applications" -maxdepth 1 -type d -name '*.app' -print 2>/dev/null \
+    | sed 's#.*/##; s/\.app$//' \
+    | sort -fu
+} > "$repo_dir/macos/applications.txt"
+
+if command -v brew >/dev/null 2>&1; then
+  brew bundle dump --force --describe --file "$repo_dir/Brewfile.generated"
+fi
+
+if command -v mas >/dev/null 2>&1; then
+  mas list > "$repo_dir/macos/mas-apps.generated.txt"
+fi
+
+echo "Snapshots refreshed. Review generated files before committing."

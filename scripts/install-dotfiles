@@ -1,0 +1,37 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+repo_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
+user_dir="${HOME}"
+backup_dir="$user_dir/.dotfiles-backup-$(date +%Y%m%d-%H%M%S)"
+backup_created=false
+
+link_file() {
+  source_file="$1"
+  destination_file="$2"
+
+  mkdir -p "$(dirname "$destination_file")"
+
+  if [[ -L "$destination_file" ]] && [[ "$(readlink "$destination_file")" == "$source_file" ]]; then
+    echo "Already linked: $destination_file"
+    return
+  fi
+
+  if [[ -e "$destination_file" || -L "$destination_file" ]]; then
+    mkdir -p "$backup_dir/$(dirname "${destination_file#$user_dir/}")"
+    mv "$destination_file" "$backup_dir/${destination_file#$user_dir/}"
+    backup_created=true
+  fi
+
+  ln -s "$source_file" "$destination_file"
+  echo "Linked: $destination_file"
+}
+
+link_file "$repo_dir/home/.zshrc" "$user_dir/.zshrc"
+link_file "$repo_dir/home/.gitconfig" "$user_dir/.gitconfig"
+link_file "$repo_dir/home/.condarc" "$user_dir/.condarc"
+link_file "$repo_dir/home/.config/starship.toml" "$user_dir/.config/starship.toml"
+
+if [[ "$backup_created" == true ]]; then
+  echo "Previous files backed up to: $backup_dir"
+fi

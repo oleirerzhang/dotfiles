@@ -1,0 +1,32 @@
+.DS_Store
+*.swp
+*.swo
+*.bak
+*~
+
+# Local overrides and credentials
+.env
+.env.*
+!.env.example
+*.local
+*.pem
+*.key
+credentials*
+secrets*
+
+# Never commit private keychains, auth state, or shell history
+.ssh/
+.gnupg/
+.aws/
+.config/gh/
+.*_history
+.zsh_sessions/
+
+# Alfred's live preferences can contain credentials and executable workflows.
+Alfred.alfredpreferences/
+*.alfredpreferences/
+*.alfredworkflow
+
+# Generated local snapshots
+Brewfile.generated
+macos/mas-apps.generated.txt

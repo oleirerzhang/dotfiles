@@ -1,0 +1,156 @@
+# Applications found in /Applications and ~/Applications
+# Captured: 2026-08-11 AEST
+
+??
+AdBlock
+Alacritty
+Alfred 4
+Alfred 5
+Amethyst
+Amphetamine
+Anki
+Antigravity
+AppCleaner
+Audacity
+Betternet VPN
+Bloons TD 6
+Brackets
+Brawlhalla
+Bugs Hub
+calibre
+Camdic
+CheatSheet
+Claude
+Claude Code URL Handler
+CleanMyMac X
+CleanShot X
+Clicky
+Cmacked
+Codex
+Cold Turkey Blocker
+Color Picker
+Commander One
+CotEditor
+Countdown Timer Plus
+Cursor
+CustomShortcuts
+Day One
+Dia
+Discord
+Doki Doki Literature Club
+Downie 4
+Drafts
+Dropzone 4
+Epic Games Launcher
+Evernote
+Fantastical 2
+Firefox
+Freedom
+Freeplane
+GarageBand
+Geany
+Gemini 2
+GeoGebra Calculator Suite
+GeoGebra CAS Calculator
+GeoGebra Classic 6
+GeoGebra Geometry
+GeoGebra Graphing Calculator
+Ghostty
+GIMP
+Goodnotes
+Google Chrome
+Google Docs
+Google Keep
+Google Sheets
+Google Slides
+Guardian Browser
+Gyazo
+Gyazo GIF
+IINA
+Ikuna
+iMovie
+Inkscape
+IntelliJ IDEA
+iTerm
+Keka
+Keynote
+Kindle
+kitty
+League of Legends
+LibreOffice
+LockDown Browser
+Logi Options
+MarkText
+Mathematica
+Mathpix Snipping Tool
+MATLAB_R2023a
+Microsoft Excel
+Microsoft OneNote
+Microsoft Outlook
+Microsoft Word
+MiKTeX Console
+Minecraft
+Mnemosyne
+Mos
+Muck
+Multipass
+Muse Hub
+MuseScore 4
+net.downloadhelper.coapp
+Notability
+Numbers
+Numi
+OBS
+Obsidian
+OneDrive
+OpenClaw
+OpenOffice
+Pages
+PCClient
+PDF Expert
+PDF Squeezer
+pgAdmin 4
+PixelSnap 2
+Prognosis
+Qards
+qbittorrent
+Readwise_iBooks
+Rectangle Pro
+rednote
+Reeder
+Renamer
+Sibelius
+SideNotes
+SiteSucker Pro
+Skim
+Skype
+Slack
+Slay the Princess
+Spotify
+Star VPN
+Stardew Valley
+StatPlus
+Steam
+Sweet Home 3D
+Terraria
+texmaker
+Textream
+TextSniper
+Thesis dump
+Tomighty
+ToothFairy
+Unity Hub
+UPDF
+UpNote
+UpNote Web Clipper
+UTM
+uTorrent Web
+Videlion
+VirtualBox
+Visual Studio Code
+Warp
+WeChat
+WhatsApp
+WolframScript
+zoom.us
+Zotero
