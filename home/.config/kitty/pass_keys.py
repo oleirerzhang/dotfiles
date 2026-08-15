@@ -31,7 +31,7 @@ def main():
 
 @result_handler(no_ui=True)
 def handle_result(args, result, target_window_id, boss):
-    direction = args[1]
+    fallback_action = args[1]
     key_mapping = args[2]
     vim_id = args[3] if len(args) > 3 else "n?vim"
 
@@ -39,9 +39,20 @@ def handle_result(args, result, target_window_id, boss):
 
     if window is None:
         return
+
+    # A native Kitty selection (for example, Shift+drag inside Neovim) takes
+    # precedence so the usual macOS copy shortcut continues to work.
+    if fallback_action == "copy" and window.has_selection():
+        window.copy_to_clipboard()
+        return
+
     if is_window_vim(window, vim_id):
         for keymap in key_mapping.split(">"):
             encoded = encode_key_mapping(window, keymap)
             window.write_to_child(encoded)
+    elif fallback_action == "copy":
+        window.copy_to_clipboard()
+    elif fallback_action == "paste":
+        boss.paste_from_clipboard()
     else:
-        boss.active_tab.neighboring_window(direction)
+        boss.active_tab.neighboring_window(fallback_action)
