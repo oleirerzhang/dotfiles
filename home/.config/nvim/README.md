@@ -35,8 +35,8 @@ nvim main.tex
 ```
 
 VimTeX starts `latexmk` in continuous mode automatically. TeX buffers save
-after an 800 ms typing pause, the PDF recompiles, and Skim reloads it. Press
-`Space c p` to open the PDF or forward-search from the current source line.
+after an 800 ms typing pause, the PDF recompiles, and MuPDF reloads it. Press
+`Space c p` to open the PDF viewer.
 
 Useful VimTeX defaults use the local leader (`\\`):
 
@@ -46,8 +46,12 @@ Useful VimTeX defaults use the local leader (`\\`):
 - `\\lq` stops the compiler.
 - `\\lc` removes generated auxiliary files.
 
-Skim remains in the background while compiling, so it does not steal focus
-from Neovim. The current setup uses VimTeX 2.17 because Neovim 0.11 does not
-meet VimTeX 2.18's Neovim 0.12.4 requirement.
+MuPDF is keyboard-first: `/` searches, `n` and `N` move between matches,
+`h/j/k/l` pan, `g` and `G` jump to the first and last pages, `123g` jumps to
+page 123, `r` reloads, `F1` shows all keys, and `q` quits. Use `Cmd+Tab` to
+switch between MuPDF and Kitty/Neovim.
+
+The current setup uses VimTeX 2.17 because Neovim 0.11 does not meet VimTeX
+2.18's Neovim 0.12.4 requirement.
 
 Full documentation: https://www.lazyvim.org/
