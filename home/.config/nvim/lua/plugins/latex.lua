@@ -5,11 +5,14 @@ return {
     tag = "v2.17",
     lazy = false,
     init = function()
-      vim.g.vimtex_view_method = "skim"
+      -- GUI-launched Neovim does not always inherit the interactive shell PATH.
+      local user_bin = vim.fn.expand("$HOME/.local/bin")
+      if not vim.env.PATH:find(user_bin, 1, true) then
+        vim.env.PATH = user_bin .. ":" .. vim.env.PATH
+      end
+
+      vim.g.vimtex_view_method = "mupdf"
       vim.g.vimtex_view_automatic = 1
-      vim.g.vimtex_view_skim_activate = 0
-      vim.g.vimtex_view_skim_sync = 1
-      vim.g.vimtex_view_skim_no_select = 1
       vim.g.vimtex_compiler_method = "latexmk"
       vim.g.vimtex_compiler_latexmk = {
         continuous = 1,
@@ -32,7 +35,7 @@ return {
       })
 
       -- Overleaf-like autosave: after a short pause, save the TeX buffer.
-      -- latexmk notices the write, recompiles, and Skim reloads the PDF.
+      -- latexmk notices the write, recompiles, and MuPDF reloads the PDF.
       local save_timers = {}
       vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
         group = group,

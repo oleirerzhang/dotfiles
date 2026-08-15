@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Homebrew names the graphical binary mupdf-gl, while VimTeX's MuPDF adapter
+# expects an executable named mupdf. Keep that compatibility shim portable.
+exec mupdf-gl "$@"
