@@ -51,6 +51,12 @@ MuPDF is keyboard-first: `/` searches, `n` and `N` move between matches,
 page 123, `r` reloads, `F1` shows all keys, and `q` quits. Use `Cmd+Tab` to
 switch between MuPDF and Kitty/Neovim.
 
+In Neovim, `Cmd+V` pastes from the macOS clipboard in Insert, Normal, Visual,
+and command-line modes. `Cmd+C` copies a Visual-mode selection (or the current
+line in Normal mode), and `Option+Delete` deletes the previous word in Insert
+mode. A native Kitty selection made with `Shift+drag` can also be copied with
+`Cmd+C`.
+
 The current setup uses VimTeX 2.17 because Neovim 0.11 does not meet VimTeX
 2.18's Neovim 0.12.4 requirement.
 
