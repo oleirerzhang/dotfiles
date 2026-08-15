@@ -358,3 +358,37 @@ ghcount() {
 
 # --- Python environment stuff ---
 alias markitdown='~/tools/markitdown/.venv/bin/markitdown'
+
+# Compile and run one C++ source file: cprun exercise.cpp [program arguments]
+cprun() {
+  if (( $# == 0 )); then
+    echo "Usage: cprun <file.cpp> [program arguments...]" >&2
+    return 2
+  fi
+
+  local source_file="$1"
+  shift
+
+  if [[ ! -f "$source_file" ]]; then
+    echo "cprun: file not found: $source_file" >&2
+    return 2
+  fi
+
+  local compiler
+  if (( $+commands[g++-15] )); then
+    compiler="g++-15"
+  elif (( $+commands[clang++] )); then
+    compiler="clang++"
+  else
+    echo "cprun: no C++ compiler found" >&2
+    return 127
+  fi
+
+  local output_file="${TMPDIR:-/tmp}/cprun-${source_file:t:r}-$$"
+  "$compiler" -std=c++20 -Wall -Wextra -pedantic "$source_file" -o "$output_file" || return
+
+  "$output_file" "$@"
+  local run_status=$?
+  command rm -f "$output_file"
+  return $run_status
+}

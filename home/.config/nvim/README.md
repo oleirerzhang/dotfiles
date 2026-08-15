@@ -26,4 +26,28 @@ This is the official [LazyVim starter](https://github.com/LazyVim/starter), kept
 - `:LazyExtras` enables maintained language/framework integrations when needed.
 - `:checkhealth lazyvim` checks the installation.
 
+## LaTeX live preview
+
+Open a project from the directory containing its main TeX file:
+
+```sh
+nvim main.tex
+```
+
+VimTeX starts `latexmk` in continuous mode automatically. TeX buffers save
+after an 800 ms typing pause, the PDF recompiles, and Skim reloads it. Press
+`Space c p` to open the PDF or forward-search from the current source line.
+
+Useful VimTeX defaults use the local leader (`\\`):
+
+- `\\lv` opens or forward-searches in the PDF viewer.
+- `\\ll` starts or toggles continuous compilation.
+- `\\le` shows compiler errors.
+- `\\lq` stops the compiler.
+- `\\lc` removes generated auxiliary files.
+
+Skim remains in the background while compiling, so it does not steal focus
+from Neovim. The current setup uses VimTeX 2.17 because Neovim 0.11 does not
+meet VimTeX 2.18's Neovim 0.12.4 requirement.
+
 Full documentation: https://www.lazyvim.org/
