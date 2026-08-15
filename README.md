@@ -7,7 +7,7 @@ This repository is the recovery and clean-install layer. For the current Mac-to-
 ## What is included
 
 - `Brewfile`: current top-level Homebrew formulae and casks, plus detected Mac App Store apps.
-- `home/`: a reviewed subset of portable dotfiles.
+- `home/`: portable shell settings, the LazyVim starter, and the Kitty configuration.
 - `scripts/bootstrap`: installs Homebrew dependencies and links the reviewed dotfiles.
 - `scripts/capture`: creates fresh application and Homebrew snapshots for review.
 - `macos/applications.txt`: inventory of applications found on the source Mac.
@@ -26,6 +26,10 @@ cd ~/dotfiles
 ```
 
 The installer backs up an existing destination before replacing it with a symlink. It does not modify unrelated files.
+
+## Neovim in Kitty
+
+LazyVim is intentionally close to its official defaults. In Kitty, press `Cmd+Option+E` to open `nvim .` in a new tab at the current directory. Inside Neovim, press `Space` and pause to see the available commands. The editor-specific quick start is in `home/.config/nvim/README.md`.
 
 ## Refresh snapshots on this Mac
 

@@ -1,0 +1,7 @@
+layout tall
+
+cd ~
+
+launch --title "home" zsh -lc 'fastfetch; exec zsh -l'
+focus
+focus_os_window
