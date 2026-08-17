@@ -1,0 +1,10 @@
+#!/bin/sh
+
+if [ -x /opt/homebrew/bin/yabai ]; then
+  exec /opt/homebrew/bin/yabai "$@"
+elif [ -x /usr/local/bin/yabai ]; then
+  exec /usr/local/bin/yabai "$@"
+fi
+
+echo "yabai: executable not found" >&2
+exit 1

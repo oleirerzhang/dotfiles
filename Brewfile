@@ -1,3 +1,6 @@
+# Maintained yabai/skhd formulae.
+tap "asmvik/formulae"
+
 # Command-line tools currently installed as top-level Homebrew formulae.
 brew "bat"
 brew "blueutil"
@@ -39,6 +42,8 @@ brew "wget"
 brew "zoxide"
 brew "zsh-autosuggestions"
 brew "zsh-vi-mode"
+brew "asmvik/formulae/skhd"
+brew "asmvik/formulae/yabai"
 
 # Applications currently managed by Homebrew Cask.
 cask "alacritty"

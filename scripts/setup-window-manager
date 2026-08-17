@@ -1,0 +1,30 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# Keep space indices stable. yabai requires each display to own its Spaces.
+defaults write com.apple.dock mru-spaces -bool false
+defaults write com.apple.spaces spans-displays -bool false
+
+# Prevent wallpaper clicks from interfering with yabai display/space focus.
+defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
+
+if ! command -v yabai >/dev/null 2>&1 || ! command -v skhd >/dev/null 2>&1; then
+  echo "yabai and skhd are not installed. Run brew bundle first." >&2
+  exit 1
+fi
+
+yabai --start-service
+skhd --start-service
+
+cat <<'EOF'
+Window-manager services started.
+
+If macOS asks for access, enable both yabai and skhd in:
+System Settings > Privacy & Security > Accessibility
+
+Then run:
+  yabai --restart-service
+  skhd --restart-service
+
+Log out once if "Displays have separate Spaces" was previously disabled.
+EOF

@@ -7,7 +7,7 @@ This repository is the recovery and clean-install layer. For the current Mac-to-
 ## What is included
 
 - `Brewfile`: current top-level Homebrew formulae and casks, plus detected Mac App Store apps.
-- `home/`: portable shell settings, the LazyVim starter, and the Kitty configuration.
+- `home/`: portable shell settings, LazyVim, Kitty, and yabai/skhd configuration.
 - `scripts/bootstrap`: installs Homebrew dependencies and links the reviewed dotfiles.
 - `scripts/capture`: creates fresh application and Homebrew snapshots for review.
 - `macos/applications.txt`: inventory of applications found on the source Mac.
@@ -30,6 +30,35 @@ The installer backs up an existing destination before replacing it with a symlin
 ## Neovim in Kitty
 
 LazyVim is intentionally close to its official defaults. In Kitty, press `Cmd+Option+E` to open `nvim .` in a new tab at the current directory. Inside Neovim, press `Space` and pause to see the available commands. The editor-specific quick start is in `home/.config/nvim/README.md`.
+
+## Window management
+
+`yabai` provides BSP tiling and animation-free Space switching; `skhd` owns the
+keyboard shortcuts. System Integrity Protection stays enabled, so the optional
+yabai scripting addition is not installed.
+
+The existing Rectangle placements are preserved:
+
+| Shortcut | Action |
+| --- | --- |
+| `Cmd+Option+Arrow` | Float and place the window in that screen half |
+| `Cmd+Option+F` | Maximize |
+| `Cmd+Option+D` | Almost maximize |
+| `Cmd+Option+C` | Center at half width and height |
+| `Control+1` ... `Control+9` | Focus a Space instantly |
+| `Control+Shift+1` ... `Control+Shift+9` | Send the window to a Space and follow it |
+| `Control+Command+Left/Right` | Focus the previous/next Space instantly |
+| `Control+Option+H/J/K/L` | Focus the window to the west/south/north/east |
+| `Control+Option+Shift+H/J/K/L` | Swap with the window in that direction |
+
+For mouse control, hold `Control` and left-drag to move a window, or hold
+`Control` and right-drag to resize from the corner under the pointer. yabai
+supports one mouse modifier rather than Rectangle Pro's distinct modifier sets.
+
+On a clean install, `scripts/bootstrap` starts both launch agents. Grant both
+executables access in **System Settings > Privacy & Security > Accessibility**,
+then run `yabai --restart-service` and `skhd --restart-service`. If the bootstrap
+changed **Displays have separate Spaces**, log out once before using yabai.
 
 ## Refresh snapshots on this Mac
 

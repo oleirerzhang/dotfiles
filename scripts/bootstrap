@@ -21,6 +21,7 @@ fi
 
 brew bundle --file "$repo_dir/Brewfile"
 "$repo_dir/scripts/install-dotfiles"
+"$repo_dir/scripts/setup-window-manager"
 
 echo
 echo "Bootstrap complete. Follow alfred/README.md to connect Alfred preferences."

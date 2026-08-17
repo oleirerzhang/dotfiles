@@ -34,6 +34,8 @@ link_path "$repo_dir/home/bin/mupdf" "$user_dir/.local/bin/mupdf"
 link_path "$repo_dir/home/.config/starship.toml" "$user_dir/.config/starship.toml"
 link_path "$repo_dir/home/.config/nvim" "$user_dir/.config/nvim"
 link_path "$repo_dir/home/.config/kitty" "$user_dir/.config/kitty"
+link_path "$repo_dir/home/.config/yabai" "$user_dir/.config/yabai"
+link_path "$repo_dir/home/.config/skhd" "$user_dir/.config/skhd"
 
 if [[ "$backup_created" == true ]]; then
   echo "Previous files backed up to: $backup_dir"
