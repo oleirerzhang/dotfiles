@@ -1,8 +1,10 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-# Keep space indices stable. yabai requires each display to own its Spaces.
+# Keep Space indices stable, and never let app activation pull focus to a
+# different Space. yabai requires each display to own its Spaces.
 defaults write com.apple.dock mru-spaces -bool false
+defaults write com.apple.dock workspaces-auto-swoosh -bool false
 defaults write com.apple.spaces spans-displays -bool false
 
 # Prevent wallpaper clicks from interfering with yabai display/space focus.

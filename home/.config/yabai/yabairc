@@ -39,9 +39,9 @@ fi
   app="^(System Settings|System Preferences|Calculator)$" manage=off
 "$yabai_bin" -m rule --add label=dialogs subrole="^AXDialog$" manage=off
 
-# Keep Quick Look previews floating while leaving Finder's native Spacebar
-# behavior untouched.
+# Match Finder's native Quick Look subrole at window creation, before its title
+# is populated, and keep the preview floating.
 "$yabai_bin" -m rule --add label=quick-look-service \
   app="^(Quick Look|QuickLookUIService|qlmanage)$" manage=off
-"$yabai_bin" -m rule --add label=finder-pdf-quick-look \
-  app="^Finder$" title="^Quick Look$" manage=off
+"$yabai_bin" -m rule --add label=finder-quick-look \
+  app="^Finder$" subrole="^Quick Look$" manage=off
