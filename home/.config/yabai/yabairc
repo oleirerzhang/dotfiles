@@ -38,3 +38,11 @@ fi
 "$yabai_bin" -m rule --add label=system-utilities \
   app="^(System Settings|System Preferences|Calculator)$" manage=off
 "$yabai_bin" -m rule --add label=dialogs subrole="^AXDialog$" manage=off
+
+# Keep Quick Look previews above the current Space instead of following a
+# previously opened preview to another Space. The Finder fallback covers PDF
+# previews whose window is reported as belonging to Finder.
+"$yabai_bin" -m rule --add label=quick-look-service \
+  app="^(Quick Look|QuickLookUIService|qlmanage)$" manage=off
+"$yabai_bin" -m rule --add label=finder-pdf-quick-look \
+  app="^Finder$" title="(^Quick Look|.*\\.[Pp][Dd][Ff]$)" manage=off

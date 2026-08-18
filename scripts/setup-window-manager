@@ -5,8 +5,17 @@ set -euo pipefail
 defaults write com.apple.dock mru-spaces -bool false
 defaults write com.apple.spaces spans-displays -bool false
 
+# Quick Look is an XPC panel that yabai cannot move as a normal window. Make
+# only that service available on every Space so Finder previews open in place.
+defaults write com.apple.spaces app-bindings \
+  -dict-add com.apple.quicklook.QuickLookUIService AllSpaces
+
 # Prevent wallpaper clicks from interfering with yabai display/space focus.
 defaults write com.apple.WindowManager EnableStandardClickToShowDesktop -bool false
+
+# Reload the two macOS components that own these Space preferences.
+killall QuickLookUIService 2>/dev/null || true
+killall Dock
 
 if ! command -v yabai >/dev/null 2>&1 || ! command -v skhd >/dev/null 2>&1; then
   echo "yabai and skhd are not installed. Run brew bundle first." >&2

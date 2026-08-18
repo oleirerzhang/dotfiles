@@ -9,7 +9,8 @@ space_index=$("$yabai_command" -m query --spaces --space | \
 
 # A floating Space has no BSP tree. Switch layouts first, then re-manage the
 # movable, resizable standard windows that were explicitly floated by a grid
-# shortcut. Keep small system utilities floating as configured in yabairc.
+# shortcut. Keep small system utilities and Quick Look previews floating as
+# configured in yabairc.
 "$yabai_command" -m space "$space_index" --layout bsp
 
 "$yabai_command" -m query --windows --space "$space_index" | \
@@ -20,6 +21,10 @@ space_index=$("$yabai_command" -m query --spaces --space | \
     | select(."can-move" == true and ."can-resize" == true)
     | select(.role == "AXWindow" and .subrole == "AXStandardWindow")
     | select((.app | test("^(System Settings|System Preferences|Calculator)$")) | not)
+    | select((
+        (.app | test("^(Quick Look|QuickLookUIService|qlmanage)$"))
+        or (.app == "Finder" and (.title | test("(^Quick Look|.*\\.[Pp][Dd][Ff]$)")))
+      ) | not)
     | .id
   ' | while IFS= read -r window_id; do
     "$yabai_command" -m window "$window_id" --toggle float || true
