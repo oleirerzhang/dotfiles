@@ -48,12 +48,22 @@ The existing Rectangle placements are preserved:
 | `Control+1` ... `Control+9` | Focus a Space instantly |
 | `Control+Shift+1` ... `Control+Shift+9` | Send the window to a Space and follow it |
 | `Control+Command+Left/Right` | Focus the previous/next Space instantly |
+| `Control+Option+B` | Snap eligible windows into a balanced BSP layout |
+| `Control+Option+Tab` | Cycle focus to the next visible or stacked window |
+| `Control+Option+Shift+Tab` | Cycle focus to the previous visible or stacked window |
 | `Control+Option+H/J/K/L` | Focus the window to the west/south/north/east |
 | `Control+Option+Shift+H/J/K/L` | Swap with the window in that direction |
+| `Control+Option+S` | Use a stacked layout |
+| `Control+Option+F` | Toggle the focused window between floating and tiled |
 
 For mouse control, hold `Control` and left-drag to move a window, or hold
 `Control` and right-drag to resize from the corner under the pointer. yabai
 supports one mouse modifier rather than Rectangle Pro's distinct modifier sets.
+
+The Rectangle-style `Cmd+Option` grid shortcuts intentionally make a window
+float. Press `Control+Option+B` whenever you want to bring the current Space
+back under automatic tiling; focus, swap, zoom, and balance commands operate on
+that managed BSP tree.
 
 On a clean install, `scripts/bootstrap` starts both launch agents. Grant both
 executables access in **System Settings > Privacy & Security > Accessibility**,

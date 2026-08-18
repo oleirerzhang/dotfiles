@@ -1,0 +1,28 @@
+#!/bin/sh
+set -eu
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+yabai_command="$script_dir/yabai-command"
+
+space_index=$("$yabai_command" -m query --spaces --space | \
+  /usr/bin/jq -r '.index')
+
+# A floating Space has no BSP tree. Switch layouts first, then re-manage the
+# movable, resizable standard windows that were explicitly floated by a grid
+# shortcut. Keep small system utilities floating as configured in yabairc.
+"$yabai_command" -m space "$space_index" --layout bsp
+
+"$yabai_command" -m query --windows --space "$space_index" | \
+  /usr/bin/jq -r '
+    .[]
+    | select(."is-floating" == true)
+    | select(."has-ax-reference" == true)
+    | select(."can-move" == true and ."can-resize" == true)
+    | select(.role == "AXWindow" and .subrole == "AXStandardWindow")
+    | select((.app | test("^(System Settings|System Preferences|Calculator)$")) | not)
+    | .id
+  ' | while IFS= read -r window_id; do
+    "$yabai_command" -m window "$window_id" --toggle float || true
+  done
+
+"$yabai_command" -m space "$space_index" --balance

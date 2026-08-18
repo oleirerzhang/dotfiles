@@ -1,0 +1,38 @@
+#!/bin/sh
+set -eu
+
+direction=${1:-}
+case "$direction" in
+  next|prev) ;;
+  *)
+    echo "usage: focus-cycle next|prev" >&2
+    exit 2
+    ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+yabai_command="$script_dir/yabai-command"
+focused_id=$("$yabai_command" -m query --windows --window | \
+  /usr/bin/jq -r '.id')
+
+target_id=$("$yabai_command" -m query --windows --space | \
+  /usr/bin/jq -r --argjson focused "$focused_id" --arg direction "$direction" '
+    ([
+       .[]
+       | select(."has-ax-reference" == true)
+       | select(.role == "AXWindow" and .subrole == "AXStandardWindow")
+       | select(."is-visible" == true or ."stack-index" > 0)
+       | .id
+     ] | sort) as $ids
+    | ($ids | length) as $length
+    | ($ids | index($focused)) as $index
+    | if $length < 2 then empty
+      elif $index == null then $ids[0]
+      elif $direction == "next" then $ids[($index + 1) % $length]
+      else $ids[($index - 1 + $length) % $length]
+      end
+  ')
+
+if [ -n "$target_id" ]; then
+  exec "$yabai_command" -m window --focus "$target_id"
+fi
