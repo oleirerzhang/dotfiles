@@ -39,9 +39,8 @@ fi
   app="^(System Settings|System Preferences|Calculator)$" manage=off
 "$yabai_bin" -m rule --add label=dialogs subrole="^AXDialog$" manage=off
 
-# Keep Quick Look previews above the current Space instead of following a
-# previously opened preview to another Space. The Finder fallback covers PDF
-# previews whose window is reported as belonging to Finder.
+# Keep Quick Look previews floating. skhd's Finder Spacebar wrapper handles
+# their dynamic Space placement.
 "$yabai_bin" -m rule --add label=quick-look-service \
   app="^(Quick Look|QuickLookUIService|qlmanage)$" manage=off
 "$yabai_bin" -m rule --add label=finder-pdf-quick-look \

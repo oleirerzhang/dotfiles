@@ -1,3 +1,15 @@
+# Finder Quick Look needs a one-key pass-through mode so its native Spacebar
+# action can run after the originating Space has been captured.
+:: default
+:: finder_quick_look : "$HOME/.config/yabai/scripts/quick-look-current-space" --pass-through
+finder_quick_look < space -> ; default
+shift + ctrl + alt + cmd - f20 ; finder_quick_look
+
+space [
+  "Finder" : "$HOME/.config/yabai/scripts/quick-look-current-space"
+  * ~
+]
+
 # Rectangle replacements. These first seven bindings preserve the current
 # Cmd+Option placement keys exactly; snapping floats a tiled window first.
 cmd + alt - left  : "$HOME/.config/yabai/scripts/float-window" --grid 1:2:0:0:1:1

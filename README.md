@@ -61,9 +61,10 @@ For mouse control, hold `Control` and left-drag to move a window, or hold
 supports one mouse modifier rather than Rectangle Pro's distinct modifier sets.
 
 Finder Quick Look previews, including PDFs opened with `Space`, stay floating
-over the current Space instead of switching to an older preview's Space. Only
-the Quick Look service is assigned to every Space; ordinary Finder windows keep
-their normal Space assignments.
+over the current Space instead of switching to an older preview's Space. A
+Finder-only `skhd` wrapper records the originating Space before handing the
+native Spacebar action back to Finder, then corrects any jump caused by a reused
+Quick Look panel. Ordinary Finder windows keep their normal Space assignments.
 
 The Rectangle-style `Cmd+Option` grid shortcuts intentionally make a window
 float. Press `Control+Option+B` whenever you want to bring the current Space
