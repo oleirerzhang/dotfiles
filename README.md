@@ -60,11 +60,9 @@ For mouse control, hold `Control` and left-drag to move a window, or hold
 `Control` and right-drag to resize from the corner under the pointer. yabai
 supports one mouse modifier rather than Rectangle Pro's distinct modifier sets.
 
-Finder Quick Look previews, including PDFs opened with `Space`, stay floating
-over the current Space instead of switching to an older preview's Space. A
-Finder-only `skhd` wrapper records the originating Space before handing the
-native Spacebar action back to Finder, then corrects any jump caused by a reused
-Quick Look panel. Ordinary Finder windows keep their normal Space assignments.
+Finder Quick Look previews, including PDFs opened with `Space`, use macOS's
+native behavior. yabai leaves the preview panel unmanaged so it floats above
+the existing layout without moving or retiling other windows.
 
 The Rectangle-style `Cmd+Option` grid shortcuts intentionally make a window
 float. Press `Control+Option+B` whenever you want to bring the current Space
