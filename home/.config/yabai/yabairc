@@ -1,4 +1,5 @@
 #!/bin/sh
+set -eu
 
 if [ -x /opt/homebrew/bin/yabai ]; then
   yabai_bin=/opt/homebrew/bin/yabai
@@ -9,39 +10,13 @@ else
   exit 1
 fi
 
-# SIP stays enabled. Current yabai releases can focus Spaces without the
-# scripting addition; this option removes the remaining focus animation.
-"$yabai_bin" -m config                             \
-  mouse_follows_focus          off                 \
-  focus_follows_mouse          off                 \
-  window_origin_display        cursor              \
-  window_placement             second_child        \
-  window_insertion_point       focused             \
-  window_zoom_persist          on                  \
-  skip_window_focus_animation  on                  \
-  window_animation_duration    0.0                 \
-  split_ratio                  0.50                \
-  split_type                   auto                \
-  auto_balance                 off                 \
-  top_padding                  8                   \
-  bottom_padding               8                   \
-  left_padding                 8                   \
-  right_padding                8                   \
-  window_gap                   8                   \
-  layout                       bsp                 \
-  mouse_modifier               ctrl                \
-  mouse_action1                move                \
-  mouse_action2                resize              \
-  mouse_drop_action            swap
+# Use yabai only for explicit window placement. It does not tile new windows,
+# manage Quick Look, or rearrange anything automatically.
+"$yabai_bin" -m config \
+  layout                    float \
+  window_animation_duration 0.0
 
-# Small utility windows and sheets are easier to use floating.
-"$yabai_bin" -m rule --add label=system-utilities \
-  app="^(System Settings|System Preferences|Calculator)$" manage=off
-"$yabai_bin" -m rule --add label=dialogs subrole="^AXDialog$" manage=off
-
-# Match Finder's native Quick Look subrole at window creation, before its title
-# is populated, and keep the preview floating.
-"$yabai_bin" -m rule --add label=quick-look-service \
-  app="^(Quick Look|QuickLookUIService|qlmanage)$" manage=off
-"$yabai_bin" -m rule --add label=finder-quick-look \
-  app="^Finder$" subrole="^Quick Look$" manage=off
+# Clear any BSP layouts left over from an older version of this configuration.
+"$yabai_bin" -m query --spaces | /usr/bin/jq -r '.[].index' | while IFS= read -r space_index; do
+  "$yabai_bin" -m space "$space_index" --layout float
+done

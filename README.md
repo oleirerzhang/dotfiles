@@ -33,43 +33,16 @@ LazyVim is intentionally close to its official defaults. In Kitty, press `Cmd+Op
 
 ## Window management
 
-`yabai` provides BSP tiling and animation-free Space switching; `skhd` owns the
-keyboard shortcuts. System Integrity Protection stays enabled, so the optional
-yabai scripting addition is not installed.
-
-The existing Rectangle placements are preserved:
+`yabai` runs in floating mode and `skhd` provides four Rectangle-style placement
+shortcuts. There is no automatic tiling, Space control, focus navigation, or
+special handling for Quick Look.
 
 | Shortcut | Action |
 | --- | --- |
-| `Cmd+Option+Arrow` | Float and place the window in that screen half |
-| `Cmd+Option+F` | Maximize |
-| `Cmd+Option+D` | Almost maximize |
-| `Cmd+Option+C` | Center at half width and height |
-| `Control+1` ... `Control+9` | Focus a Space instantly |
-| `Control+Shift+1` ... `Control+Shift+9` | Send the window to a Space and follow it |
-| `Control+Command+Left/Right` | Focus the previous/next Space instantly |
-| `Control+Option+B` | Snap eligible windows into a balanced BSP layout |
-| `Control+Option+Tab` | Cycle focus to the next visible or stacked window |
-| `Control+Option+Shift+Tab` | Cycle focus to the previous visible or stacked window |
-| `Control+Option+H/J/K/L` | Focus the window to the west/south/north/east |
-| `Control+Option+Shift+H/J/K/L` | Swap with the window in that direction |
-| `Control+Option+S` | Use a stacked layout |
-| `Control+Option+F` | Toggle the focused window between floating and tiled |
-
-For mouse control, hold `Control` and left-drag to move a window, or hold
-`Control` and right-drag to resize from the corner under the pointer. yabai
-supports one mouse modifier rather than Rectangle Pro's distinct modifier sets.
-
-Finder Quick Look previews, including PDFs opened with `Space`, use macOS's
-native behavior. yabai matches the panel's native subrole at creation and
-leaves it unmanaged, so it floats above the existing layout without moving or
-retiling other windows. The setup also disables macOS's automatic jump to a
-Space that already contains a window from the activated application.
-
-The Rectangle-style `Cmd+Option` grid shortcuts intentionally make a window
-float. Press `Control+Option+B` whenever you want to bring the current Space
-back under automatic tiling; focus, swap, zoom, and balance commands operate on
-that managed BSP tree.
+| `Cmd+Option+Left` | Place the focused window in the left half |
+| `Cmd+Option+Right` | Place the focused window in the right half |
+| `Cmd+Option+Up` | Place the focused window in the top half |
+| `Cmd+Option+Down` | Place the focused window in the bottom half |
 
 On a clean install, `scripts/bootstrap` starts both launch agents. Grant both
 executables access in **System Settings > Privacy & Security > Accessibility**,
