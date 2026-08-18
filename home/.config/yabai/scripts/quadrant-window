@@ -1,0 +1,236 @@
+#!/bin/sh
+set -eu
+
+requested_slot=${1:-}
+case "$requested_slot" in
+  top-left) slot=tl ;;
+  bottom-left) slot=bl ;;
+  top-right) slot=tr ;;
+  bottom-right) slot=br ;;
+  *)
+    echo "usage: quadrant-window top-left|bottom-left|top-right|bottom-right" >&2
+    exit 2
+    ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+yabai_command="$script_dir/yabai-command"
+
+window_json=$("$yabai_command" -m query --windows --window)
+window_id=$(printf '%s\n' "$window_json" | /usr/bin/jq -r '.id')
+display_index=$(printf '%s\n' "$window_json" | /usr/bin/jq -r '.display')
+space_index=$(printf '%s\n' "$window_json" | /usr/bin/jq -r '.space')
+
+if ! printf '%s\n' "$window_json" | /usr/bin/jq -e \
+  '."can-move" == true and ."can-resize" == true' >/dev/null; then
+  exit 0
+fi
+
+# Remember only windows explicitly assigned through this helper. State is
+# scoped to the current display and Space and discarded automatically at boot.
+state_root="${TMPDIR:-/tmp}/yabai-quadrants-$(id -u)"
+/bin/mkdir -p "$state_root"
+/bin/chmod 700 "$state_root"
+state_file="$state_root/display-${display_index}-space-${space_index}.tsv"
+
+tl_id= tl_min_w=0 tl_min_h=0
+bl_id= bl_min_w=0 bl_min_h=0
+tr_id= tr_min_w=0 tr_min_h=0
+br_id= br_min_w=0 br_min_h=0
+
+tab=$(printf '\t')
+if [ -r "$state_file" ]; then
+  while IFS="$tab" read -r saved_slot saved_id saved_min_w saved_min_h; do
+    case "$saved_slot" in
+      tl|bl|tr|br)
+        case "$saved_id:$saved_min_w:$saved_min_h" in
+          *[!0-9:]*|::*|:*:|*::) continue ;;
+        esac
+        eval "${saved_slot}_id=\$saved_id"
+        eval "${saved_slot}_min_w=\$saved_min_w"
+        eval "${saved_slot}_min_h=\$saved_min_h"
+        ;;
+    esac
+  done < "$state_file"
+fi
+
+all_windows=$("$yabai_command" -m query --windows)
+for known_slot in tl bl tr br; do
+  eval "known_id=\${${known_slot}_id}"
+  if [ -n "$known_id" ] && ! printf '%s\n' "$all_windows" | /usr/bin/jq -e \
+    --argjson id "$known_id" --argjson display "$display_index" \
+    --argjson space "$space_index" \
+    'any(.[]; .id == $id and .display == $display and .space == $space
+      and ."can-move" == true and ."can-resize" == true
+      and ."is-minimized" == false and ."is-visible" == true)' >/dev/null; then
+    eval "${known_slot}_id="
+    eval "${known_slot}_min_w=0"
+    eval "${known_slot}_min_h=0"
+  fi
+
+  # Moving a window to a new quadrant releases its previous assignment.
+  if [ "$known_id" = "$window_id" ]; then
+    eval "${known_slot}_id="
+    eval "${known_slot}_min_w=0"
+    eval "${known_slot}_min_h=0"
+  fi
+done
+
+eval "${slot}_id=\$window_id"
+eval "${slot}_min_w=0"
+eval "${slot}_min_h=0"
+
+display_json=$("$yabai_command" -m query --displays --display "$display_index")
+display_x=$(printf '%s\n' "$display_json" | /usr/bin/jq -r '.frame.x | floor')
+display_y=$(printf '%s\n' "$display_json" | /usr/bin/jq -r '.frame.y | floor')
+display_w=$(printf '%s\n' "$display_json" | /usr/bin/jq -r '.frame.w | floor')
+display_h=$(printf '%s\n' "$display_json" | /usr/bin/jq -r '.frame.h | floor')
+
+# NSScreen exposes the usable screen insets (menu bar and Dock). Match by full
+# display dimensions, then apply those insets to yabai's global coordinates.
+screen_rows=$(/usr/bin/osascript -l JavaScript -e '
+  ObjC.import("AppKit");
+  $.NSScreen.screens.js.map(function (screen) {
+    var frame = screen.frame;
+    var visible = screen.visibleFrame;
+    var left = visible.origin.x - frame.origin.x;
+    var top = (frame.origin.y + frame.size.height) -
+      (visible.origin.y + visible.size.height);
+    var right = (frame.origin.x + frame.size.width) -
+      (visible.origin.x + visible.size.width);
+    var bottom = visible.origin.y - frame.origin.y;
+    return [frame.size.width, frame.size.height, left, top, right, bottom].join(",");
+  }).join("\\n");
+' 2>/dev/null || true)
+
+screen_match=$(printf '%s\n' "$screen_rows" | /usr/bin/awk -F, \
+  -v width="$display_w" -v height="$display_h" \
+  '$1 == width && $2 == height { print; exit }')
+
+inset_left=0 inset_top=0 inset_right=0 inset_bottom=0
+if [ -n "$screen_match" ]; then
+  IFS=, read -r _ _ inset_left inset_top inset_right inset_bottom <<EOF
+$screen_match
+EOF
+fi
+
+screen_x=$((display_x + inset_left))
+screen_y=$((display_y + inset_top))
+screen_w=$((display_w - inset_left - inset_right))
+screen_h=$((display_h - inset_top - inset_bottom))
+
+max_value() {
+  if [ "$1" -gt "$2" ]; then
+    printf '%s\n' "$1"
+  else
+    printf '%s\n' "$2"
+  fi
+}
+
+calculate_regions() {
+  left_min=$(max_value "$tl_min_w" "$bl_min_w")
+  right_min=$(max_value "$tr_min_w" "$br_min_w")
+  top_min=$(max_value "$tl_min_h" "$tr_min_h")
+  bottom_min=$(max_value "$bl_min_h" "$br_min_h")
+
+  half_w=$((screen_w / 2))
+  half_h=$((screen_h / 2))
+
+  if [ $((left_min + right_min)) -le "$screen_w" ]; then
+    left_w=$half_w
+    [ "$left_w" -lt "$left_min" ] && left_w=$left_min
+    [ "$left_w" -gt $((screen_w - right_min)) ] && left_w=$((screen_w - right_min))
+    right_w=$((screen_w - left_w))
+  else
+    # Both columns cannot fit. Request their actual minimums so any overlap is
+    # no greater than the applications make unavoidable.
+    left_w=$left_min
+    right_w=$right_min
+    [ "$left_w" -gt 0 ] || left_w=1
+    [ "$right_w" -gt 0 ] || right_w=1
+  fi
+
+  if [ $((top_min + bottom_min)) -le "$screen_h" ]; then
+    top_h=$half_h
+    [ "$top_h" -lt "$top_min" ] && top_h=$top_min
+    [ "$top_h" -gt $((screen_h - bottom_min)) ] && top_h=$((screen_h - bottom_min))
+    bottom_h=$((screen_h - top_h))
+  else
+    top_h=$top_min
+    bottom_h=$bottom_min
+    [ "$top_h" -gt 0 ] || top_h=1
+    [ "$bottom_h" -gt 0 ] || bottom_h=1
+  fi
+}
+
+apply_slot() {
+  apply_slot_name=$1
+  update_minimums=$2
+  eval "apply_id=\${${apply_slot_name}_id}"
+  [ -n "$apply_id" ] || return 0
+
+  case "$apply_slot_name" in
+    tl|bl) requested_w=$left_w ;;
+    tr|br) requested_w=$right_w ;;
+  esac
+  case "$apply_slot_name" in
+    tl|tr) requested_h=$top_h ;;
+    bl|br) requested_h=$bottom_h ;;
+  esac
+
+  [ "$requested_w" -gt 0 ] || requested_w=1
+  [ "$requested_h" -gt 0 ] || requested_h=1
+  "$yabai_command" -m window "$apply_id" \
+    --resize "abs:${requested_w}:${requested_h}" >/dev/null 2>&1 || return 0
+
+  applied_json=$("$yabai_command" -m query --windows --window "$apply_id")
+  actual_w=$(printf '%s\n' "$applied_json" | /usr/bin/jq -r '.frame.w | floor')
+  actual_h=$(printf '%s\n' "$applied_json" | /usr/bin/jq -r '.frame.h | floor')
+
+  if [ "$update_minimums" = true ]; then
+    if [ "$actual_w" -gt "$requested_w" ]; then
+      eval "${apply_slot_name}_min_w=\$actual_w"
+    fi
+    if [ "$actual_h" -gt "$requested_h" ]; then
+      eval "${apply_slot_name}_min_h=\$actual_h"
+    fi
+  fi
+
+  case "$apply_slot_name" in
+    tl|bl) target_x=$screen_x ;;
+    tr|br) target_x=$((screen_x + screen_w - actual_w)) ;;
+  esac
+  case "$apply_slot_name" in
+    tl|tr) target_y=$screen_y ;;
+    bl|br) target_y=$((screen_y + screen_h - actual_h)) ;;
+  esac
+
+  "$yabai_command" -m window "$apply_id" \
+    --move "abs:${target_x}:${target_y}" >/dev/null 2>&1 || true
+}
+
+# First pass discovers macOS-enforced minimum sizes. The second pass moves the
+# shared boundaries and gives adjacent windows exactly the remaining room.
+calculate_regions
+for assigned_slot in tl bl tr br; do
+  apply_slot "$assigned_slot" true
+done
+
+calculate_regions
+for assigned_slot in tl bl tr br; do
+  apply_slot "$assigned_slot" false
+done
+
+temporary_state=$(/usr/bin/mktemp "$state_root/.state.XXXXXX")
+trap '/bin/rm -f "$temporary_state"' EXIT HUP INT TERM
+for assigned_slot in tl bl tr br; do
+  eval "assigned_id=\${${assigned_slot}_id}"
+  [ -n "$assigned_id" ] || continue
+  eval "assigned_min_w=\${${assigned_slot}_min_w}"
+  eval "assigned_min_h=\${${assigned_slot}_min_h}"
+  printf '%s\t%s\t%s\t%s\n' \
+    "$assigned_slot" "$assigned_id" "$assigned_min_w" "$assigned_min_h" \
+    >> "$temporary_state"
+done
+/bin/mv "$temporary_state" "$state_file"
+trap - EXIT HUP INT TERM

@@ -33,7 +33,7 @@ LazyVim is intentionally close to its official defaults. In Kitty, press `Cmd+Op
 
 ## Window management
 
-`yabai` runs in floating mode and `skhd` provides four Rectangle-style placement
+`yabai` runs in floating mode and `skhd` provides Rectangle-style placement
 shortcuts. There is no automatic tiling, Space control, focus navigation, or
 special handling for Quick Look.
 
@@ -43,6 +43,16 @@ special handling for Quick Look.
 | `Cmd+Option+Right` | Place the focused window in the right half |
 | `Cmd+Option+Up` | Place the focused window in the top half |
 | `Cmd+Option+Down` | Place the focused window in the bottom half |
+| `Cmd+Option+H` | Place the focused window in the top-left quadrant |
+| `Cmd+Option+J` | Place the focused window in the bottom-left quadrant |
+| `Cmd+Option+K` | Place the focused window in the top-right quadrant |
+| `Cmd+Option+L` | Place the focused window in the bottom-right quadrant |
+
+Quadrant assignments are remembered per display and Space. When a window's
+minimum size exceeds one quarter of the screen, its row or column expands and
+an adjacent assigned window receives the remaining room. If two minimum sizes
+cannot fit simultaneously, the windows remain anchored to opposite edges and
+overlap only by the unavoidable amount.
 
 On a clean install, `scripts/bootstrap` starts both launch agents. Grant both
 executables access in **System Settings > Privacy & Security > Accessibility**,
