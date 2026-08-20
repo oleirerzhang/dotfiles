@@ -1,0 +1,54 @@
+#!/bin/sh
+# Print "x y w h" for the usable area of a display, in yabai's global
+# coordinates. NSScreen is the only thing that knows where the menu bar and
+# Dock actually sit, so match its screens to yabai's by full pixel size.
+set -eu
+
+display_index=${1:-}
+case "$display_index" in
+  ''|*[!0-9]*)
+    echo "usage: visible-frame <display-index>" >&2
+    exit 2
+    ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+yabai_command="$script_dir/yabai-command"
+
+display_json=$("$yabai_command" -m query --displays --display "$display_index")
+display_x=$(printf '%s\n' "$display_json" | /usr/bin/jq -r '.frame.x | floor')
+display_y=$(printf '%s\n' "$display_json" | /usr/bin/jq -r '.frame.y | floor')
+display_w=$(printf '%s\n' "$display_json" | /usr/bin/jq -r '.frame.w | floor')
+display_h=$(printf '%s\n' "$display_json" | /usr/bin/jq -r '.frame.h | floor')
+
+screen_rows=$(/usr/bin/osascript -l JavaScript -e '
+  ObjC.import("AppKit");
+  $.NSScreen.screens.js.map(function (screen) {
+    var frame = screen.frame;
+    var visible = screen.visibleFrame;
+    var left = visible.origin.x - frame.origin.x;
+    var top = (frame.origin.y + frame.size.height) -
+      (visible.origin.y + visible.size.height);
+    var right = (frame.origin.x + frame.size.width) -
+      (visible.origin.x + visible.size.width);
+    var bottom = visible.origin.y - frame.origin.y;
+    return [frame.size.width, frame.size.height, left, top, right, bottom].join(",");
+  }).join("\\n");
+' 2>/dev/null || true)
+
+screen_match=$(printf '%s\n' "$screen_rows" | /usr/bin/awk -F, \
+  -v width="$display_w" -v height="$display_h" \
+  '$1 == width && $2 == height { print; exit }')
+
+inset_left=0 inset_top=0 inset_right=0 inset_bottom=0
+if [ -n "$screen_match" ]; then
+  IFS=, read -r _ _ inset_left inset_top inset_right inset_bottom <<EOF
+$screen_match
+EOF
+fi
+
+printf '%s %s %s %s\n' \
+  "$((display_x + inset_left))" \
+  "$((display_y + inset_top))" \
+  "$((display_w - inset_left - inset_right))" \
+  "$((display_h - inset_top - inset_bottom))"
