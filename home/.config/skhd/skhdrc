@@ -10,3 +10,21 @@ cmd + alt - h : "$HOME/.config/yabai/scripts/quadrant-window" top-left
 cmd + alt - j : "$HOME/.config/yabai/scripts/quadrant-window" bottom-left
 cmd + alt - k : "$HOME/.config/yabai/scripts/quadrant-window" top-right
 cmd + alt - l : "$HOME/.config/yabai/scripts/quadrant-window" bottom-right
+
+# Workspace switching. yabai focuses the space directly instead of going
+# through Mission Control, so there is no slide animation.
+cmd + alt - 1 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 1
+cmd + alt - 2 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 2
+cmd + alt - 3 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 3
+cmd + alt - 4 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 4
+
+# Previous / next space ([ and ]), and the last space you came from (tab).
+cmd + alt - 0x21 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus prev
+cmd + alt - 0x1E : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus next
+cmd + alt - tab  : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus recent
+
+# Send the focused window to a space (shift), staying where you are.
+cmd + alt + shift - 1 : "$HOME/.config/yabai/scripts/yabai-command" -m window --space 1
+cmd + alt + shift - 2 : "$HOME/.config/yabai/scripts/yabai-command" -m window --space 2
+cmd + alt + shift - 3 : "$HOME/.config/yabai/scripts/yabai-command" -m window --space 3
+cmd + alt + shift - 4 : "$HOME/.config/yabai/scripts/yabai-command" -m window --space 4
