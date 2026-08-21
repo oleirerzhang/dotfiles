@@ -39,3 +39,10 @@ cmd + alt + shift - h : "$HOME/.config/yabai/scripts/layout-space" halves
 cmd + alt + shift - q : "$HOME/.config/yabai/scripts/layout-space" quadrants
 cmd + alt + shift - c : "$HOME/.config/yabai/scripts/layout-space" columns
 cmd + alt + shift - r : "$HOME/.config/yabai/scripts/layout-space" rows
+
+# Workspace management:
+# Move current window to next workspace and follow it
+shift + alt - n : yabai -m window --space next --focus
+
+# Move to previous workspace
+shift + alt - p : yabai -m window --space prev --focus
