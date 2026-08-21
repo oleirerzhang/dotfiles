@@ -37,6 +37,7 @@ cmd + alt + shift - left  : "$HOME/.config/yabai/scripts/layout-space" main-left
 cmd + alt + shift - right : "$HOME/.config/yabai/scripts/layout-space" main-right
 cmd + alt + shift - h : "$HOME/.config/yabai/scripts/layout-space" halves
 cmd + alt + shift - q : "$HOME/.config/yabai/scripts/layout-space" quadrants
+cmd + alt + shift - e : "$HOME/.config/yabai/scripts/layout-space" eighths
 cmd + alt + shift - c : "$HOME/.config/yabai/scripts/layout-space" columns
 cmd + alt + shift - r : "$HOME/.config/yabai/scripts/layout-space" rows
 

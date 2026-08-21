@@ -47,6 +47,7 @@ special handling for Quick Look.
 | `Cmd+Option+J` | Place the focused window in the bottom-left quadrant |
 | `Cmd+Option+K` | Place the focused window in the top-right quadrant |
 | `Cmd+Option+L` | Place the focused window in the bottom-right quadrant |
+| `Cmd+Option+Shift+E` | Arrange up to eight windows in a 4-by-2 ultrawide grid |
 
 Quadrant assignments are remembered per display and Space. When a window's
 minimum size exceeds one quarter of the screen, its row or column expands and
