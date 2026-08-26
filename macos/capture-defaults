@@ -1,0 +1,61 @@
+#!/usr/bin/env bash
+# Print the current value of every macOS preference this repository tracks.
+#
+# Run by scripts/capture into macos/defaults-snapshot.txt. The snapshot is an
+# audit record: diff it after a system update, or against a new Mac, to see
+# which preferences actually differ. macos/defaults.sh is the half that
+# applies them, and the two lists are kept in step by hand.
+set -uo pipefail
+
+tracked_keys() {
+  cat <<'KEYS'
+NSGlobalDomain InitialKeyRepeat
+NSGlobalDomain KeyRepeat
+NSGlobalDomain ApplePressAndHoldEnabled
+NSGlobalDomain AppleShowAllExtensions
+NSGlobalDomain AppleShowScrollBars
+NSGlobalDomain AppleInterfaceStyle
+NSGlobalDomain com.apple.swipescrolldirection
+NSGlobalDomain NSAutomaticSpellingCorrectionEnabled
+NSGlobalDomain NSAutomaticCapitalizationEnabled
+NSGlobalDomain NSAutomaticDashSubstitutionEnabled
+NSGlobalDomain NSAutomaticQuoteSubstitutionEnabled
+NSGlobalDomain NSAutomaticPeriodSubstitutionEnabled
+com.apple.dock autohide
+com.apple.dock tilesize
+com.apple.dock magnification
+com.apple.dock largesize
+com.apple.dock show-recents
+com.apple.dock mru-spaces
+com.apple.dock orientation
+com.apple.dock expose-animation-duration
+com.apple.finder ShowPathbar
+com.apple.finder ShowStatusBar
+com.apple.finder AppleShowAllFiles
+com.apple.finder FXPreferredViewStyle
+com.apple.finder NewWindowTarget
+com.apple.spaces spans-displays
+com.apple.universalaccess reduceMotion
+com.apple.universalaccess reduceTransparency
+com.apple.AppleMultitouchTrackpad Clicking
+com.apple.AppleMultitouchTrackpad TrackpadThreeFingerDrag
+com.apple.screencapture location
+com.apple.screencapture type
+KEYS
+}
+
+echo "# macOS preferences tracked by this repository"
+echo "# Captured: $(date '+%Y-%m-%d %H:%M:%S %Z')"
+echo "#"
+echo "# \"(unset)\" means the preference has never been written, so macOS is"
+echo "# using its own default. Those are deliberately not forced by defaults.sh."
+echo
+
+tracked_keys | while read -r domain key; do
+  [ -n "$domain" ] || continue
+  if value=$(defaults read "$domain" "$key" 2>/dev/null); then
+    printf '%-40s %-38s %s\n' "$domain" "$key" "$value"
+  else
+    printf '%-40s %-38s %s\n' "$domain" "$key" "(unset)"
+  fi
+done

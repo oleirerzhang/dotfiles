@@ -1,0 +1,38 @@
+# macOS preferences tracked by this repository
+# Captured: 2026-08-27 09:48:32 AEST
+#
+# "(unset)" means the preference has never been written, so macOS is
+# using its own default. Those are deliberately not forced by defaults.sh.
+
+NSGlobalDomain                           InitialKeyRepeat                       35
+NSGlobalDomain                           KeyRepeat                              (unset)
+NSGlobalDomain                           ApplePressAndHoldEnabled               (unset)
+NSGlobalDomain                           AppleShowAllExtensions                 (unset)
+NSGlobalDomain                           AppleShowScrollBars                    Always
+NSGlobalDomain                           AppleInterfaceStyle                    (unset)
+NSGlobalDomain                           com.apple.swipescrolldirection         1
+NSGlobalDomain                           NSAutomaticSpellingCorrectionEnabled   1
+NSGlobalDomain                           NSAutomaticCapitalizationEnabled       1
+NSGlobalDomain                           NSAutomaticDashSubstitutionEnabled     1
+NSGlobalDomain                           NSAutomaticQuoteSubstitutionEnabled    1
+NSGlobalDomain                           NSAutomaticPeriodSubstitutionEnabled   1
+com.apple.dock                           autohide                               1
+com.apple.dock                           tilesize                               32
+com.apple.dock                           magnification                          0
+com.apple.dock                           largesize                              128
+com.apple.dock                           show-recents                           0
+com.apple.dock                           mru-spaces                             0
+com.apple.dock                           orientation                            bottom
+com.apple.dock                           expose-animation-duration              (unset)
+com.apple.finder                         ShowPathbar                            1
+com.apple.finder                         ShowStatusBar                          (unset)
+com.apple.finder                         AppleShowAllFiles                      (unset)
+com.apple.finder                         FXPreferredViewStyle                   icnv
+com.apple.finder                         NewWindowTarget                        PfAF
+com.apple.spaces                         spans-displays                         0
+com.apple.universalaccess                reduceMotion                           1
+com.apple.universalaccess                reduceTransparency                     1
+com.apple.AppleMultitouchTrackpad        Clicking                               1
+com.apple.AppleMultitouchTrackpad        TrackpadThreeFingerDrag                0
+com.apple.screencapture                  location                               (unset)
+com.apple.screencapture                  type                                   (unset)
