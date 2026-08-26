@@ -1,0 +1,58 @@
+{
+  "keepAlive" : [
+    "Spotify"
+  ],
+  "presets" : [
+    {
+      "spaces" : 3,
+      "layout" : [
+        {
+          "url" : "https:\/\/app.notion.com\/p\/ozzzhang\/INFO4990-CS-Research-Methods-3b98aa426b4a80e08e06dccaeb85541c",
+          "name" : "Chrome",
+          "monitor" : "main",
+          "spaceIndex" : 1,
+          "pos" : "max",
+          "isBrowser" : true
+        },
+        {
+          "name" : "Kitty",
+          "monitor" : "main",
+          "isBrowser" : false,
+          "spaceIndex" : 2,
+          "url" : "",
+          "pos" : "left"
+        },
+        {
+          "name" : "Notability",
+          "monitor" : "main",
+          "isBrowser" : false,
+          "spaceIndex" : 2,
+          "url" : "",
+          "pos" : "right"
+        },
+        {
+          "name" : "Day One",
+          "monitor" : "main",
+          "isBrowser" : false,
+          "spaceIndex" : 3,
+          "url" : "",
+          "pos" : "max"
+        }
+      ],
+      "key" : "standard",
+      "name" : "Standard",
+      "secondarySpaces" : 1
+    }
+  ],
+  "bindings" : [
+    {
+      "key" : "S",
+      "presetKey" : "standard",
+      "mods" : [
+        "cmd",
+        "alt",
+        "ctrl"
+      ]
+    }
+  ]
+}

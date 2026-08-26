@@ -36,6 +36,20 @@ link_path "$repo_dir/home/.config/nvim" "$user_dir/.config/nvim"
 link_path "$repo_dir/home/.config/kitty" "$user_dir/.config/kitty"
 link_path "$repo_dir/home/.config/yabai" "$user_dir/.config/yabai"
 link_path "$repo_dir/home/.config/skhd" "$user_dir/.config/skhd"
+link_path "$repo_dir/home/.config/fastfetch" "$user_dir/.config/fastfetch"
+link_path "$repo_dir/home/.config/fish" "$user_dir/.config/fish"
+link_path "$repo_dir/home/.config/git" "$user_dir/.config/git"
+link_path "$repo_dir/home/.config/thefuck" "$user_dir/.config/thefuck"
+link_path "$repo_dir/home/.hammerspoon" "$user_dir/.hammerspoon"
+link_path "$repo_dir/home/.bash_profile" "$user_dir/.bash_profile"
+
+# Spicetify rewrites config-xpui.ini with machine-specific paths whenever it
+# runs, so it is copied rather than linked and the repo copy is a reference.
+if [[ ! -e "$user_dir/.config/spicetify/config-xpui.ini" ]]; then
+  mkdir -p "$user_dir/.config/spicetify"
+  cp "$repo_dir/home/.config/spicetify/config-xpui.ini" "$user_dir/.config/spicetify/config-xpui.ini"
+  echo "Copied: $user_dir/.config/spicetify/config-xpui.ini"
+fi
 
 if [[ "$backup_created" == true ]]; then
   echo "Previous files backed up to: $backup_dir"

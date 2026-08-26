@@ -23,5 +23,9 @@ brew bundle --file "$repo_dir/Brewfile"
 "$repo_dir/scripts/install-dotfiles"
 "$repo_dir/scripts/setup-window-manager"
 
+if [[ "${SKIP_MACOS_DEFAULTS:-0}" != 1 ]]; then
+  "$repo_dir/macos/defaults.sh"
+fi
+
 echo
 echo "Bootstrap complete. Follow alfred/README.md to connect Alfred preferences."
