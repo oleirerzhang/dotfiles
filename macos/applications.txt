@@ -1,5 +1,5 @@
 # Applications found in /Applications and ~/Applications
-# Captured: 2026-08-11 AEST
+# Captured: 2026-08-27 09:48:30 AEST
 
 ??
 AdBlock
@@ -8,6 +8,7 @@ Alfred 4
 Alfred 5
 Amethyst
 Amphetamine
+Android Studio
 Anki
 Antigravity
 AppCleaner
@@ -19,14 +20,13 @@ Brawlhalla
 Bugs Hub
 calibre
 Camdic
+ChatGPT
 CheatSheet
 Claude
 Claude Code URL Handler
 CleanMyMac X
 CleanShot X
-Clicky
 Cmacked
-Codex
 Cold Turkey Blocker
 Color Picker
 Commander One
@@ -66,6 +66,7 @@ Google Slides
 Guardian Browser
 Gyazo
 Gyazo GIF
+Hammerspoon
 IINA
 Ikuna
 iMovie
@@ -102,9 +103,12 @@ Numbers
 Numi
 OBS
 Obsidian
+Ollama
 OneDrive
 OpenClaw
 OpenOffice
+OpenSuperWhisper
+OrbStack
 Pages
 PCClient
 PDF Expert
@@ -119,6 +123,7 @@ Rectangle Pro
 rednote
 Reeder
 Renamer
+shiftplus
 Sibelius
 SideNotes
 SiteSucker Pro
@@ -126,13 +131,16 @@ Skim
 Skype
 Slack
 Slay the Princess
+Spencer
 Spotify
 Star VPN
 Stardew Valley
 StatPlus
 Steam
+supasidebar
 Sweet Home 3D
 Terraria
+TestFlight
 texmaker
 Textream
 TextSniper
@@ -152,5 +160,6 @@ Warp
 WeChat
 WhatsApp
 WolframScript
+Xcode
 zoom.us
 Zotero
