@@ -4,6 +4,7 @@ cmd + alt - left  : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid
 cmd + alt - right : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 1:2:1:0:1:1
 cmd + alt - up    : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 2:1:0:0:1:1
 cmd + alt - down  : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 2:1:0:1:1:1
+cmd + alt - f     : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 1:1:0:0:1:1
 
 # Constraint-aware quadrants. H/J are the left column; K/L are the right.
 cmd + alt - h : "$HOME/.config/yabai/scripts/quadrant-window" top-left

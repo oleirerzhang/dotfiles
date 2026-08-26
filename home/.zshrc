@@ -395,3 +395,7 @@ cprun() {
   command rm -f "$output_file"
   return $run_status
 }
+
+# Unity CLI. Guarded because the file only exists once Unity Hub has run, and
+# written relative to $HOME so it survives a different account name.
+[ -r "$HOME/.unity/env" ] && . "$HOME/.unity/env"
