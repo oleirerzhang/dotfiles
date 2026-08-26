@@ -1,0 +1,47 @@
+# Entries a fresh `brew bundle dump` does not produce on this machine.
+# scripts/capture appends this file to the dump and drops any line the dump
+# already covers, so everything recorded here survives a re-capture.
+#
+# Two reasons an entry belongs here:
+#   1. The dump aborts its dependency sort on a libtiff/webp cycle in the
+#      installed keg tabs, and silently omits whatever it had not reached.
+#   2. `mas` is not installed, so the dump reports no App Store apps at all.
+#      It is listed below and will be present after the first bootstrap.
+
+# Verified installed with `brew list`, absent from the dump.
+brew "go"
+
+# Wanted on a new Mac, installed here outside Homebrew.
+brew "mas"
+cask "kitty"
+cask "mactex-no-gui"
+
+# Mac App Store apps. scripts/capture refreshes these once `mas` is installed.
+mas "AdBlock", id: 1402042596
+mas "Amphetamine", id: 937984704
+mas "Betternet VPN", id: 1028905953
+mas "Color Picker", id: 1545870783
+mas "Commander One", id: 1035236694
+mas "CotEditor", id: 1024640650
+mas "Countdown Timer Plus", id: 1150771803
+mas "Day One", id: 1055511498
+mas "Drafts", id: 1435957248
+mas "GarageBand", id: 682658836
+mas "GeoGebra CAS Calculator", id: 1489962804
+mas "GeoGebra Calculator Suite", id: 1504416652
+mas "GeoGebra Classic 6", id: 1182481622
+mas "GeoGebra Geometry", id: 1294020062
+mas "GeoGebra Graphing Calculator", id: 1294018688
+mas "Goodnotes", id: 1444383602
+mas "Keynote", id: 409183694
+mas "Notability", id: 360593530
+mas "Numbers", id: 409203825
+mas "Pages", id: 409201541
+mas "Slack", id: 803453959
+mas "Star VPN", id: 1122918970
+mas "ToothFairy", id: 1191449274
+mas "UpNote", id: 1398373917
+mas "UpNote Web Clipper", id: 1566998257
+mas "Videlion", id: 1457447713
+mas "WeChat", id: 836500024
+mas "iMovie", id: 408981434
