@@ -18,6 +18,11 @@ cmd + alt - 1 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 1
 cmd + alt - 2 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 2
 cmd + alt - 3 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 3
 cmd + alt - 4 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 4
+cmd + alt - 5 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 5
+cmd + alt - 6 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 6
+cmd + alt - 7 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 7
+cmd + alt - 8 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 8
+cmd + alt - 9 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus 9
 
 # Previous / next space ([ and ]), and the last space you came from (tab).
 cmd + alt - 0x21 : "$HOME/.config/yabai/scripts/yabai-command" -m space --focus prev
