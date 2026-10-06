@@ -34,6 +34,11 @@ cmd + alt + shift - 1 : "$HOME/.config/yabai/scripts/yabai-command" -m window --
 cmd + alt + shift - 2 : "$HOME/.config/yabai/scripts/yabai-command" -m window --space 2
 cmd + alt + shift - 3 : "$HOME/.config/yabai/scripts/yabai-command" -m window --space 3
 cmd + alt + shift - 4 : "$HOME/.config/yabai/scripts/yabai-command" -m window --space 4
+cmd + alt + shift - 5 : "$HOME/.config/yabai/scripts/yabai-command" -m window --space 5
+cmd + alt + shift - 6 : "$HOME/.config/yabai/scripts/yabai-command" -m window --space 6
+cmd + alt + shift - 7 : "$HOME/.config/yabai/scripts/yabai-command" -m window --space 7
+cmd + alt + shift - 8 : "$HOME/.config/yabai/scripts/yabai-command" -m window --space 8
+cmd + alt + shift - 9 : "$HOME/.config/yabai/scripts/yabai-command" -m window --space 9
 
 # Whole-Space layouts. Same modifiers as the single-window shortcuts above,
 # plus shift: without shift you place the focused window, with shift you
