@@ -53,6 +53,9 @@ cmd + alt + shift - c : "$HOME/.config/yabai/scripts/layout-space" columns
 cmd + alt + shift - r : "$HOME/.config/yabai/scripts/layout-space" rows
 
 # Workspace management:
+# Create a workspace immediately to the right and focus it
+cmd + alt - n : "$HOME/.config/yabai/scripts/insert-space"
+
 # Move current window to next workspace and follow it
 shift + alt - n : yabai -m window --space next --focus
 

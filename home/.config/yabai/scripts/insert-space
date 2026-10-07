@@ -1,0 +1,29 @@
+#!/bin/sh
+set -eu
+
+yabai="$HOME/.config/yabai/scripts/yabai-command"
+jq=/usr/bin/jq
+
+current_space=$("$yabai" -m query --spaces --space)
+current_index=$(printf '%s\n' "$current_space" | "$jq" -er '.index')
+current_display=$(printf '%s\n' "$current_space" | "$jq" -er '.display')
+spaces_before=$("$yabai" -m query --spaces --display "$current_display")
+
+"$yabai" -m space --create "$current_display"
+
+spaces_after=$("$yabai" -m query --spaces --display "$current_display")
+new_index=$(
+  printf '%s\n' "$spaces_after" | "$jq" -er \
+    --argjson before "$spaces_before" \
+    '($before | map(.id)) as $known
+     | [.[] | select(.id as $id | $known | index($id) | not)]
+     | select(length == 1)
+     | .[0].index'
+)
+target_index=$((current_index + 1))
+
+if [ "$new_index" -ne "$target_index" ]; then
+  "$yabai" -m space "$new_index" --move "$target_index"
+fi
+
+"$yabai" -m space --focus "$target_index"
