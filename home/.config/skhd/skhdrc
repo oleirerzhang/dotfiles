@@ -61,3 +61,16 @@ shift + alt - n : yabai -m window --space next --focus
 
 # Move to previous workspace
 shift + alt - p : yabai -m window --space prev --focus
+
+# Focus a specific window on the current Space by visual reading order:
+# top to bottom, and left to right within each row. A number with no window is
+# a no-op. cmd + ctrl keeps this as quick as the cmd + alt Space shortcuts.
+cmd + ctrl - 1 : "$HOME/.config/yabai/scripts/focus-window" position 1
+cmd + ctrl - 2 : "$HOME/.config/yabai/scripts/focus-window" position 2
+cmd + ctrl - 3 : "$HOME/.config/yabai/scripts/focus-window" position 3
+cmd + ctrl - 4 : "$HOME/.config/yabai/scripts/focus-window" position 4
+cmd + ctrl - 5 : "$HOME/.config/yabai/scripts/focus-window" position 5
+cmd + ctrl - 6 : "$HOME/.config/yabai/scripts/focus-window" position 6
+cmd + ctrl - 7 : "$HOME/.config/yabai/scripts/focus-window" position 7
+cmd + ctrl - 8 : "$HOME/.config/yabai/scripts/focus-window" position 8
+cmd + ctrl - 9 : "$HOME/.config/yabai/scripts/focus-window" position 9

@@ -1,0 +1,137 @@
+#!/bin/sh
+# Move focus between windows on the current Space.
+#
+# yabai's own --focus west|east|north|south|next|prev only ever considers
+# *managed* windows. Every Space in this configuration runs in float layout,
+# so nothing is managed and all of those fail outright with "could not locate
+# a ... managed window". Focusing an explicit window id does work, so this
+# picks the id from the window frames instead, which is layout-independent.
+set -eu
+
+mode=${1:-}
+tile=0
+position=0
+case "$mode" in
+  west|east|north|south|next|prev) ;;
+  position)
+    position=${2:-}
+    case "$position" in
+      1|2|3|4|5|6|7|8|9) ;;
+      *) echo "usage: focus-window position <1-9>" >&2; exit 2 ;;
+    esac
+    ;;
+  tile)
+    tile=${2:-}
+    case "$tile" in
+      1|2|3|4|5|6) ;;
+      *) echo "usage: focus-window tile <1-6>" >&2; exit 2 ;;
+    esac
+    ;;
+  *)
+    echo "usage: focus-window west|east|north|south|next|prev|position <1-9>|tile <1-6>" >&2
+    exit 2
+    ;;
+esac
+
+script_dir=$(CDPATH= cd -- "$(dirname -- "$0")" && pwd)
+yabai_command="$script_dir/yabai-command"
+
+display_index=$("$yabai_command" -m query --spaces --space | /usr/bin/jq -r '.display')
+
+# Measure the parking grid against the usable area, exactly as --grid does, so
+# "tile 3" here means the same rectangle the placement shortcut produces.
+IFS=' ' read -r frame_x frame_y frame_w frame_h <<EOF
+$("$script_dir/visible-frame" "$display_index")
+EOF
+
+target=$("$yabai_command" -m query --windows --space | /usr/bin/jq -r \
+  --arg mode "$mode" --argjson tile "$tile" \
+  --argjson position "$position" \
+  --argjson fx "$frame_x" --argjson fy "$frame_y" \
+  --argjson fw "$frame_w" --argjson fh "$frame_h" '
+  def cx: .frame.x + .frame.w / 2;
+  def cy: .frame.y + .frame.h / 2;
+
+  # Only windows a person could actually switch to.
+  [ .[] | select(
+      ."is-minimized" == false and ."is-visible" == true and
+      ."is-hidden" == false and ."has-ax-reference" == true and
+      .role == "AXWindow") ] as $wins
+  | ($wins | map(select(."has-focus" == true)) | first) as $cur
+  | if ($wins | length) == 0 then empty
+
+    # Reading order: top row left to right, then bottom row. The band height is
+    # half the usable height, i.e. the row height of the parking grid, so a
+    # full-height window sorts into the top band rather than its own.
+    elif $mode == "position" then
+      ($wins | sort_by([ (((cy - $fy) / ($fh / 2)) | floor), cx ])) as $order
+      | if ($order | length) >= $position then $order[$position - 1].id
+        else empty
+        end
+
+    elif $mode == "next" or $mode == "prev" then
+      ($wins | sort_by([ (((cy - $fy) / ($fh / 2)) | floor), cx ])) as $order
+      | ($order | map(.id)) as $ids
+      | (if $cur == null then -1 else (($ids | index($cur.id)) // -1) end) as $i
+      | (if $mode == "next" then $i + 1 else $i - 1 end) as $j
+      | ($ids | length) as $n
+      | $order[ (($j % $n) + $n) % $n ].id
+
+    elif $mode == "tile" then
+      (($tile - 1) % 3) as $col
+      | ((($tile - 1) / 3) | floor) as $row
+      | ($fw / 3) as $tw
+      | ($fh / 2) as $th
+      | ($fx + $col * $tw) as $tx
+      | ($fy + $row * $th) as $ty
+      # A window counts as occupying the tile when it covers at least half of
+      # whichever is smaller, itself or the tile. That way a full-height third
+      # matches the tiles it spans, but a centred half does not match the
+      # outer columns it merely clips.
+      | [ $wins[]
+          | . as $w
+          | (([($tx + $tw), ($w.frame.x + $w.frame.w)] | min)
+             - ([$tx, $w.frame.x] | max)) as $ox
+          | (([($ty + $th), ($w.frame.y + $w.frame.h)] | min)
+             - ([$ty, $w.frame.y] | max)) as $oy
+          | (if $ox > 0 and $oy > 0 then $ox * $oy else 0 end) as $area
+          | ($w.frame.w * $w.frame.h) as $wa
+          | (if $wa < ($tw * $th) then $wa else ($tw * $th) end) as $ref
+          | select($ref > 0 and $area >= 0.5 * $ref)
+          | { id: $w.id, area: $area } ] as $hits
+      | if ($hits | length) == 0 then empty
+        else
+          # Pressing the same tile again cycles through what is stacked there.
+          (if $cur == null then -1
+           else ((($hits | map(.id)) | index($cur.id)) // -1) end) as $i
+          | ($hits | sort_by([-.area, .id]))[ (($i + 1) % ($hits | length)) ].id
+        end
+
+    # Directional. Perpendicular drift is weighted three times as heavily as
+    # distance along the axis, so focus prefers the neighbour in the same row
+    # or column over a nearer one that is off to the side.
+    else
+      if $cur == null then ($wins | sort_by([cy, cx]) | first | .id)
+      else
+        ($cur | cx) as $ccx | ($cur | cy) as $ccy
+        | [ $wins[] | select(.id != $cur.id)
+            | . as $w | ($w | cx) as $wx | ($w | cy) as $wy
+            | (if   $mode == "east"  then (if $wx > $ccx + 1 then ($wx - $ccx) + 3 * (($wy - $ccy) | length) else null end)
+               elif $mode == "west"  then (if $wx < $ccx - 1 then ($ccx - $wx) + 3 * (($wy - $ccy) | length) else null end)
+               elif $mode == "south" then (if $wy > $ccy + 1 then ($wy - $ccy) + 3 * (($wx - $ccx) | length) else null end)
+               else                       (if $wy < $ccy - 1 then ($ccy - $wy) + 3 * (($wx - $ccx) | length) else null end)
+               end) as $score
+            | select($score != null)
+            | { id: $w.id, score: $score } ]
+        | sort_by([.score, .id]) | first | if . == null then empty else .id end
+      end
+    end
+')
+
+# No candidate in that direction, or nothing parked in that tile: do nothing
+# rather than jumping focus somewhere unexpected.
+case "$target" in
+  ''|null) exit 0 ;;
+esac
+
+"$yabai_command" -m window --focus "$target"
