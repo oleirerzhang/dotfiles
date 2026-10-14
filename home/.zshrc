@@ -38,6 +38,9 @@ mkcd() {
   mkdir -p "$1" && cd "$1"
 }
 
+# Follow logs live without wrapping long lines: `follow app.log` or `cmd 2>&1 | follow`
+alias follow='less -RS +F'
+
 # Ebook to PDF shortcuts
 alias ebook-convert="/Applications/calibre.app/Contents/MacOS/ebook-convert"
 
