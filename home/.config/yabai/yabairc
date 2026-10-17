@@ -20,8 +20,3 @@ fi
 "$yabai_bin" -m query --spaces | /usr/bin/jq -r '.[].index' | while IFS= read -r space_index; do
   "$yabai_bin" -m space "$space_index" --layout float
 done
-
-# Restore Desk event hooks after a yabai restart, if the overlay is running.
-if [ -x "$HOME/.local/bin/desk" ]; then
-  "$HOME/.local/bin/desk" overlay hooks >/dev/null 2>&1 || true
-fi
