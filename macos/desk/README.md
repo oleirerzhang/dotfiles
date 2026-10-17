@@ -28,3 +28,17 @@ CLI, icons, and workflow. To reinstall that version, set the source commit to
 the tag's commit in `source.json` and run `./scripts/setup-desk`. The original
 installed apps and Spaceman preferences are also saved locally under
 `~/.local/share/named-desktops/checkpoints/pre-optimization-20261018/`.
+
+## Optimized overlay
+
+The current source pin includes event-driven Mission Control notifications,
+release-optimized Swift, a small label-row window, and corrected eight-desktop
+alignment. Open with `desk overview`, or hover over the desktop strip after
+opening Mission Control normally. Labels appear after the thumbnails settle.
+The two Desk event hooks are restored by yabairc after a service restart when
+the overlay is running. `desk overlay stop` removes just those hooks.
+
+The tested local sample fell from about 3.0% to 0.6% CPU while expanded; the
+backing surface shrank by 97.3%. Tests include independent WindowServer checks,
+rapid open/close, name/ID agreement, and repeated overview behavior. Physical
+trackpad gestures and other monitor layouts still need hands-on verification.
