@@ -151,7 +151,7 @@ source /opt/homebrew/opt/zsh-vi-mode/share/zsh-vi-mode/zsh-vi-mode.plugin.zsh
 _macos_prompt_keybindings
 
 # Suggest commands from history as you type.
-ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#6c7086'
+ZSH_AUTOSUGGEST_HIGHLIGHT_STYLE='fg=#7f849c'
 source /opt/homebrew/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 
 # Smarter directory jumping with zoxide.
@@ -402,3 +402,8 @@ cprun() {
 # Unity CLI. Guarded because the file only exists once Unity Hub has run, and
 # written relative to $HOME so it survives a different account name.
 [ -r "$HOME/.unity/env" ] && . "$HOME/.unity/env"
+# The following lines have been added by Docker Desktop to enable Docker CLI completions.
+fpath=(/Users/oliverzhang/.docker/completions $fpath)
+autoload -Uz compinit
+(( ${+_comps[docker]} )) || compinit
+# End of Docker CLI completions

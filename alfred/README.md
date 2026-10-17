@@ -36,3 +36,10 @@ Workflow environment variables and scripts can contain tokens, account identifie
 For workflows you actively develop, use a separate source repository per workflow or add only reviewed source files here. Keep credentials in Alfred's workflow configuration or the macOS Keychain, never in Git.
 
 Official guide: https://www.alfredapp.com/help/advanced/sync/
+
+## Desk workflow
+
+Named Desktops is a reviewed source workflow installed by `scripts/setup-desk`
+from the pinned Desk repository. Keyword: `desk`. It shares names with the
+Terminal CLI and Spaceman and includes the custom workspace icon. Reinstalling
+Desk restores this workflow without importing unrelated Alfred preferences.

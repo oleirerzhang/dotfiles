@@ -1,0 +1,3 @@
+ui:
+  # Match the kitty theme (Catppuccin Mocha); press T to preview others
+  theme: catppuccin_mocha

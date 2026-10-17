@@ -253,3 +253,11 @@ mas "UpNote Web Clipper", id: 1566998257
 mas "Videlion", id: 1457447713
 mas "WeChat", id: 836500024
 mas "iMovie", id: 408981434
+
+tap "ruittenb/tap"
+
+cask "ruittenb/tap/spaceman"
+
+brew "git-delta"
+
+brew "diffnav"

@@ -1,0 +1,30 @@
+#!/usr/bin/env python3
+"""Build the pinned Desk source. Does not change desktop names or topology."""
+from pathlib import Path
+import json
+import subprocess
+import sys
+
+repo = Path(__file__).resolve().parent.parent
+lock = json.loads((repo / "macos/desk/source.json").read_text())
+source = Path.home() / ".local/share/desk-source"
+source.parent.mkdir(parents=True, exist_ok=True)
+def run(*args):
+    subprocess.run(args, check=True)
+if not source.exists():
+    run("git", "clone", lock["repository"], str(source))
+if subprocess.check_output(["git", "-C", str(source), "status", "--porcelain"], text=True).strip():
+    raise SystemExit("Desk source has local edits; save them before reinstalling.")
+actual = subprocess.check_output(["git", "-C", str(source), "remote", "get-url", "origin"], text=True).strip()
+if actual != lock["repository"]:
+    raise SystemExit("Desk source remote differs from the pinned repository.")
+run("git", "-C", str(source), "fetch", "origin")
+run("git", "-C", str(source), "checkout", "--detach", lock["commit"])
+for script in ("build_icons.py", "build_helper.py", "build_overlay.py"):
+    run(sys.executable, str(source / script))
+cli = Path.home() / ".local/bin/desk"
+if cli.exists():
+    run(str(cli), "overlay", "stop")
+run(sys.executable, str(source / "install_cli.py"))
+run(str(cli), "overlay", "install")
+print("Desk installed. Alfred: desk <name>. Terminal: desk --help.")

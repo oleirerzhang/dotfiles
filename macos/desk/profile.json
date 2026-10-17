@@ -1,0 +1,68 @@
+{
+  "desktops": [
+    {
+      "index": 1,
+      "display": 1,
+      "uuid": "16C08D03-15F4-43DB-BFCF-B080C221F7BF",
+      "name": "stampify"
+    },
+    {
+      "index": 2,
+      "display": 1,
+      "uuid": "45B26BCA-8CBB-4E44-8436-3C664FCBDD48",
+      "name": "stampify2"
+    },
+    {
+      "index": 3,
+      "display": 1,
+      "uuid": "B23C8E90-1876-4638-8BF8-C15B83AD05A4",
+      "name": "stampify3"
+    },
+    {
+      "index": 4,
+      "display": 1,
+      "uuid": "EBA524AB-8563-4202-9E2E-6FA1680D3C95",
+      "name": "leetcode"
+    },
+    {
+      "index": 5,
+      "display": 1,
+      "uuid": "AC1F1DC8-550D-4B10-A6CA-1B68C4BFFDCE",
+      "name": "buf"
+    },
+    {
+      "index": 6,
+      "display": 1,
+      "uuid": "3F91D816-78E2-49B2-9FE2-B1EB469D0F47",
+      "name": "jobApps"
+    },
+    {
+      "index": 7,
+      "display": 1,
+      "uuid": "45FA7F49-6C27-421F-95E0-764F7B892764",
+      "name": "research"
+    },
+    {
+      "index": 8,
+      "display": 1,
+      "uuid": "8AF7B574-D28E-485A-983F-59A0BA94ECC2",
+      "name": "4348-A2"
+    }
+  ],
+  "spacemanPreferences": {
+    "KeyboardShortcuts_preferences": "{\"carbonKeyCode\":35,\"carbonModifiers\":6400}",
+    "KeyboardShortcuts_quickRename": "{\"carbonKeyCode\":45,\"carbonModifiers\":6400}",
+    "KeyboardShortcuts_refresh": "{\"carbonKeyCode\":15,\"carbonModifiers\":6400}",
+    "autoRefreshSpaces": true,
+    "autoShrink": true,
+    "decorationActive": 5,
+    "decorationInactive": 2,
+    "horizontalDirection": 0,
+    "iconSize": 2,
+    "iconText": 4,
+    "restartNumberingByDisplay": false,
+    "switchingMode": 2,
+    "useVariableWidth": true,
+    "visibleSpacesMode": 0
+  }
+}

@@ -62,6 +62,70 @@ shift + alt - n : yabai -m window --space next --focus
 # Move to previous workspace
 shift + alt - p : yabai -m window --space prev --focus
 
+# ---------------------------------------------------------------------------
+# Ultrawide tiles for the LG 34" 3440x1440. Prefix: ctrl + alt, which is a
+# separate namespace from the cmd + alt bindings above.
+#
+# The QWE / ASD / ZXC block mirrors the screen: each ROW is a width, each
+# COLUMN is a position. Every width is measured on the same 12-unit grid, so
+# thirds, halves and two-thirds share edges and never leave a seam between
+# windows. --grid measures the usable area, so the menu bar is already
+# excluded and a full-height tile is 1409px, not 1440px.
+#
+#             left        centre       right      size
+#   Q W E   two-thirds  two-thirds  two-thirds   2293 x 1409
+#   A S D     half        half        half       1720 x 1409
+#   Z X C     third       third       third      1147 x 1409
+
+# Two-thirds. The main working window, with a third of the display still free
+# beside it for a reference window.
+ctrl + alt - q : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 1:12:0:0:8:1
+ctrl + alt - w : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 1:12:2:0:8:1
+ctrl + alt - e : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 1:12:4:0:8:1
+
+# Halves. The centred one is the writing position: 1720px is roughly a 16:10
+# laptop screen, sat in the middle with both ends of the display left empty,
+# so long lines of text stay a comfortable length.
+ctrl + alt - a : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 1:12:0:0:6:1
+ctrl + alt - s : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 1:12:3:0:6:1
+ctrl + alt - d : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 1:12:6:0:6:1
+
+# Thirds. Three of these tile the display exactly, which is the layout this
+# monitor is really for: editor | browser | terminal.
+ctrl + alt - z : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 1:12:0:0:4:1
+ctrl + alt - x : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 1:12:4:0:4:1
+ctrl + alt - c : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 1:12:8:0:4:1
+
+# Parking grid: 3 across by 2 down, numbered in reading order. Each tile is
+# 1147x705, still readable at this display's ~109 PPI. This is where a new
+# window goes when you want it open and visible but out of the way.
+#   1 2 3
+#   4 5 6
+ctrl + alt - 1 : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 2:3:0:0:1:1
+ctrl + alt - 2 : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 2:3:1:0:1:1
+ctrl + alt - 3 : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 2:3:2:0:1:1
+ctrl + alt - 4 : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 2:3:0:1:1:1
+ctrl + alt - 5 : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 2:3:1:1:1:1
+ctrl + alt - 6 : "$HOME/.config/yabai/scripts/yabai-command" -m window --grid 2:3:2:1:1:1
+
+# ---------------------------------------------------------------------------
+# Focus navigation for those tiles. yabai's own --focus west|east|north|south
+# and next|prev only consider *managed* windows, and every Space here is float
+# layout, so all of them fail with "could not locate a ... managed window".
+# The focus-window script works from window frames instead.
+
+# Directional. Perpendicular drift is weighted heavily, so from the centre
+# tile "left" reaches the tile beside it rather than the one diagonally up.
+ctrl + alt - left  : "$HOME/.config/yabai/scripts/focus-window" west
+ctrl + alt - down  : "$HOME/.config/yabai/scripts/focus-window" south
+ctrl + alt - up    : "$HOME/.config/yabai/scripts/focus-window" north
+ctrl + alt - right : "$HOME/.config/yabai/scripts/focus-window" east
+
+# Cycle every window on the Space in reading order: top row left to right,
+# then bottom row. Wraps at both ends.
+ctrl + alt - tab         : "$HOME/.config/yabai/scripts/focus-window" next
+ctrl + alt + shift - tab : "$HOME/.config/yabai/scripts/focus-window" prev
+
 # Focus a specific window on the current Space by visual reading order:
 # top to bottom, and left to right within each row. A number with no window is
 # a no-op. cmd + ctrl keeps this as quick as the cmd + alt Space shortcuts.
@@ -74,3 +138,13 @@ cmd + ctrl - 6 : "$HOME/.config/yabai/scripts/focus-window" position 6
 cmd + ctrl - 7 : "$HOME/.config/yabai/scripts/focus-window" position 7
 cmd + ctrl - 8 : "$HOME/.config/yabai/scripts/focus-window" position 8
 cmd + ctrl - 9 : "$HOME/.config/yabai/scripts/focus-window" position 9
+
+# Jump straight to whatever is parked in a tile. Same numbers that put a
+# window there, plus shift. Pressing one twice cycles through the windows
+# stacked in that tile.
+ctrl + alt + shift - 1 : "$HOME/.config/yabai/scripts/focus-window" tile 1
+ctrl + alt + shift - 2 : "$HOME/.config/yabai/scripts/focus-window" tile 2
+ctrl + alt + shift - 3 : "$HOME/.config/yabai/scripts/focus-window" tile 3
+ctrl + alt + shift - 4 : "$HOME/.config/yabai/scripts/focus-window" tile 4
+ctrl + alt + shift - 5 : "$HOME/.config/yabai/scripts/focus-window" tile 5
+ctrl + alt + shift - 6 : "$HOME/.config/yabai/scripts/focus-window" tile 6

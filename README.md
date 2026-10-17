@@ -24,7 +24,7 @@ The live `Alfred.alfredpreferences` bundle is intentionally excluded. It may con
 If you used Migration Assistant, first verify the migrated apps and Alfred. The bootstrap is mainly useful for missing tools or a future clean install.
 
 ```sh
-git clone https://github.com/ZhangO999/dotfiles.git ~/dotfiles
+git clone https://github.com/oleirerzhang/dotfiles.git ~/dotfiles
 cd ~/dotfiles
 ./scripts/bootstrap
 ```
@@ -128,3 +128,16 @@ rather than editing `Brewfile`.
 ## Migration checklist
 
 See [macos/MIGRATION.md](macos/MIGRATION.md) before wiping or trading in the old Mac.
+
+## Named desktops: Desk
+
+The private [Desk source repository](https://github.com/oleirerzhang/Desk)
+contains the CLI, reviewed Alfred workflow, native Mission Control overlay,
+custom icon, and build scripts. Run `./scripts/setup-desk` to install the pinned
+revision. Both interfaces use `desk`: in Alfred type `desk research`; in
+Terminal run `desk switch research`, `desk rename N "name"`, or `desk overview`.
+See [the saved desktop profile and recovery instructions](macos/desk/README.md).
+
+Recent local configuration updates are captured too: Kitty contrast and project
+sessions, ultrawide skhd tiles and focus navigation, Catppuccin diffnav, and Git
+delta settings. Local backup files and scratch files are excluded from commits.

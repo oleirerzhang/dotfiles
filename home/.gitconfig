@@ -3,3 +3,22 @@
 [user]
 	name = oliver zhang
 	email = ozha8307@uni.sydney.edu.au
+[credential "https://github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[credential "https://gist.github.com"]
+	helper =
+	helper = !/opt/homebrew/bin/gh auth git-credential
+[core]
+	pager = delta --side-by-side
+[interactive]
+	diffFilter = delta --color-only
+[delta]
+	navigate = true
+	line-numbers = true
+	wrap-right-percent = 1
+	line-numbers-zero-style = "#9399B2"
+	line-numbers-minus-style = "#F38BA8"
+	line-numbers-plus-style = "#A6E3A1"
+[merge]
+	conflictStyle = zdiff3
