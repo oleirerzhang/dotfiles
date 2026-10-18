@@ -1,5 +1,7 @@
 {
   "repository": "https://github.com/oleirerzhang/Desk.git",
-  "commit": "60c2424fdebae53d1216e677967504b1ef56de9c",
-  "recoveryTag": "pre-optimization-20261018"
+  "commit": "96d522c347a76e9c95239e67b50d7dba97de0f3c",
+  "recoveryTag": "pre-optimization-20261018",
+  "branch": "codex/fix-overlay-wake",
+  "installedVersion": "1.0.2"
 }
