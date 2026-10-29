@@ -38,6 +38,9 @@ return {
     opts = {
       -- Hover docs (K) and signature help are borderless by default.
       presets = { lsp_doc_border = true },
+      -- Don't pop up a function's signature on every "(". It's still there
+      -- on demand: Ctrl+K in insert mode, gK in normal mode.
+      lsp = { signature = { auto_open = { enabled = false } } },
     },
   },
   {
