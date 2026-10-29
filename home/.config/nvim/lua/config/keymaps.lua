@@ -60,8 +60,20 @@ vim.keymap.set("t", "<M-Right>", "<M-f>")
 vim.keymap.set("t", "<D-Left>", "<C-a>")
 vim.keymap.set("t", "<D-Right>", "<C-e>")
 
--- Save and run the current file in the same terminal as <C-/>, so input works,
--- the output stays visible, and ↑ Enter in the shell re-runs it.
+-- Run a command in the same terminal as <C-/>, so input works, the output stays
+-- visible, and ↑ Enter in the shell re-runs it.
+local function run_in_terminal(cmd)
+  local term = Snacks.terminal.get(nil, { cwd = LazyVim.root() })
+  if not term then
+    return
+  end
+  term:show()
+  term:focus()
+  vim.api.nvim_chan_send(vim.bo[term.buf].channel, cmd .. "\r")
+  vim.cmd.startinsert()
+end
+
+-- <leader>r saves and runs the current file.
 local runners = {
   python = function(file)
     -- Inside a project, use its environment. For loose scripts, uv would pick
@@ -81,14 +93,18 @@ vim.keymap.set("n", "<leader>r", function()
   vim.cmd("write")
   local file = vim.fn.expand("%:p")
   local root = LazyVim.root()
-  local cmd = runner(file) .. " " .. vim.fn.shellescape(vim.fs.relpath(root, file) or file)
-
-  local term = Snacks.terminal.get(nil, { cwd = root })
-  if not term then
-    return
-  end
-  term:show()
-  term:focus()
-  vim.api.nvim_chan_send(vim.bo[term.buf].channel, cmd .. "\r")
-  vim.cmd.startinsert()
+  run_in_terminal(runner(file) .. " " .. vim.fn.shellescape(vim.fs.relpath(root, file) or file))
 end, { desc = "Run File" })
+
+-- <leader>t saves and runs the project's tests with pytest (or, for a loose
+-- script outside a project, pytest on the current file).
+vim.keymap.set("n", "<leader>t", function()
+  vim.cmd("silent! write")
+  local file = vim.fn.expand("%:p")
+  if vim.fs.root(file, "pyproject.toml") then
+    run_in_terminal("uv run pytest")
+  else
+    local rel = vim.fs.relpath(LazyVim.root(), file) or file
+    run_in_terminal("uv run --python '>=3.12' --with pytest pytest " .. vim.fn.shellescape(rel))
+  end
+end, { desc = "Run Tests" })
