@@ -39,7 +39,7 @@ return {
           vim.cmd("VimtexCompile")
           -- The viewer only opens by itself after a build, and latexmk skips the
           -- build when the PDF is already up to date, so open it now.
-          if vim.fn.filereadable(vim.fn.eval("b:vimtex.out()")) == 1 then
+          if vim.fn.filereadable(vim.fn.eval("b:vimtex.viewer.out()")) == 1 then
             vim.cmd("VimtexView")
           end
         end,
