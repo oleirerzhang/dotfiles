@@ -5,13 +5,19 @@ return {
     tag = "v2.17",
     lazy = false,
     init = function()
-      -- GUI-launched Neovim does not always inherit the interactive shell PATH.
-      local user_bin = vim.fn.expand("$HOME/.local/bin")
-      if not vim.env.PATH:find(user_bin, 1, true) then
-        vim.env.PATH = user_bin .. ":" .. vim.env.PATH
+      -- GUI-launched Neovim does not always inherit the interactive shell PATH
+      -- (e.g. Kitty's `launch nvim .` mapping), and then latexmk isn't found.
+      for _, dir in ipairs({ "/Library/TeX/texbin", vim.fn.expand("$HOME/.local/bin") }) do
+        if not vim.env.PATH:find(dir, 1, true) then
+          vim.env.PATH = dir .. ":" .. vim.env.PATH
+        end
       end
 
-      vim.g.vimtex_view_method = "mupdf"
+      -- Skim, because VimTeX can only make MuPDF reload through xdotool (X11),
+      -- so on macOS MuPDF never showed the new PDF. Skim reloads after every
+      -- build without taking focus, and `sync` scrolls it to the cursor's line.
+      vim.g.vimtex_view_method = "skim"
+      vim.g.vimtex_view_skim_sync = 1
       vim.g.vimtex_view_automatic = 1
       vim.g.vimtex_compiler_method = "latexmk"
       vim.g.vimtex_compiler_latexmk = {
@@ -31,11 +37,16 @@ return {
         pattern = "VimtexEventInitPost",
         callback = function()
           vim.cmd("VimtexCompile")
+          -- The viewer only opens by itself after a build, and latexmk skips the
+          -- build when the PDF is already up to date, so open it now.
+          if vim.fn.filereadable(vim.fn.eval("b:vimtex.out()")) == 1 then
+            vim.cmd("VimtexView")
+          end
         end,
       })
 
       -- Overleaf-like autosave: after a short pause, save the TeX buffer.
-      -- latexmk notices the write, recompiles, and MuPDF reloads the PDF.
+      -- latexmk notices the write, recompiles, and Skim reloads the PDF.
       local save_timers = {}
       vim.api.nvim_create_autocmd({ "TextChanged", "TextChangedI" }, {
         group = group,
