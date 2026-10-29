@@ -19,6 +19,9 @@ return {
       vim.g.vimtex_view_method = "skim"
       vim.g.vimtex_view_skim_sync = 1
       vim.g.vimtex_view_automatic = 1
+      -- Only pop the quickfix list open for errors; warnings are still in it
+      -- (\le or <leader>xq), they just don't interrupt every rebuild.
+      vim.g.vimtex_quickfix_open_on_warning = 0
       vim.g.vimtex_compiler_method = "latexmk"
       vim.g.vimtex_compiler_latexmk = {
         continuous = 1,
