@@ -30,6 +30,9 @@ return {
           "-file-line-error",
           "-synctex=1",
           "-interaction=nonstopmode",
+          -- latexmk checks for changed files every 2s by default; check every
+          -- 0.25s so a save starts the rebuild almost immediately.
+          "-e '$sleep_time = 0.25'",
         },
       }
 
