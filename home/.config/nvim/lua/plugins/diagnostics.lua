@@ -9,6 +9,8 @@ return {
         virtual_text = false,
         signs = false,
       })
+      -- No inline type annotations mixed into the code (toggle with <leader>uh).
+      opts.inlay_hints = vim.tbl_deep_extend("force", opts.inlay_hints or {}, { enabled = false })
 
       -- K shows the problem under the cursor if there is one, otherwise the
       -- usual docs, like hovering a squiggle in an IDE.

@@ -14,3 +14,7 @@ vim.opt.winborder = "rounded"
 -- LazyVim turns on `list`, which marks every trailing space with "-". Keep tabs
 -- rendering as whitespace but stop flagging trailing spaces.
 vim.opt.listchars = { tab = "  ", nbsp = "+" }
+
+-- Plain line numbers, like LeetCode and most editors. <leader>uL toggles
+-- LazyVim's relative numbers back on when counting lines for a motion.
+vim.opt.relativenumber = false
