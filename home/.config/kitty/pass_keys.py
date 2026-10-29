@@ -47,12 +47,21 @@ def handle_result(args, result, target_window_id, boss):
         return
 
     if is_window_vim(window, vim_id):
-        for keymap in key_mapping.split(">"):
-            encoded = encode_key_mapping(window, keymap)
-            window.write_to_child(encoded)
+        send_keys(window, key_mapping)
     elif fallback_action == "copy":
         window.copy_to_clipboard()
     elif fallback_action == "paste":
         boss.paste_from_clipboard()
+    elif fallback_action.startswith("keys:"):
+        # Outside Neovim, send different keys instead, e.g. the readline
+        # shortcut a shell understands.
+        send_keys(window, fallback_action[len("keys:"):])
+    elif fallback_action == "none":
+        pass
     else:
         boss.active_tab.neighboring_window(fallback_action)
+
+
+def send_keys(window, key_mapping):
+    for keymap in key_mapping.split(">"):
+        window.write_to_child(encode_key_mapping(window, keymap))

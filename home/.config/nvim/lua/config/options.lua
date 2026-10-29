@@ -10,3 +10,7 @@ vim.opt.clipboard = "unnamedplus"
 -- rounded border keeps each see-through pop-up distinct from the code behind it.
 vim.opt.pumblend = 0
 vim.opt.winborder = "rounded"
+
+-- LazyVim turns on `list`, which marks every trailing space with "-". Keep tabs
+-- rendering as whitespace but stop flagging trailing spaces.
+vim.opt.listchars = { tab = "  ", nbsp = "+" }
