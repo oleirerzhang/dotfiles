@@ -47,6 +47,13 @@ vim.keymap.set({ "n", "x", "i" }, "<D-Left>", line_start, { desc = "Line Start" 
 vim.keymap.set({ "n", "x" }, "<D-Right>", "$", { desc = "Line End" })
 vim.keymap.set("i", "<D-Right>", "<End>", { desc = "Line End" })
 
+-- Shift+Tab dedents by one 'shiftwidth'. Once blink.cmp loads, its buffer-local
+-- insert mapping (plugins/completion.lua) takes over so snippets still work;
+-- this global one covers the moment before. Visual mode keeps the selection.
+vim.keymap.set("i", "<S-Tab>", "<C-d>", { desc = "Dedent Line" })
+vim.keymap.set("n", "<S-Tab>", "<<", { desc = "Dedent Line" })
+vim.keymap.set("x", "<S-Tab>", "<gv", { desc = "Dedent Selection" })
+
 -- In Neovim's own terminal, pass the shell the readline keys it expects.
 vim.keymap.set("t", "<M-Left>", "<M-b>")
 vim.keymap.set("t", "<M-Right>", "<M-f>")
