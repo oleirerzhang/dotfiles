@@ -16,6 +16,7 @@ This repository is the recovery and clean-install layer. For the current Mac-to-
 - `scripts/bootstrap`: installs Homebrew dependencies, links the dotfiles, applies the macOS defaults.
 - `scripts/capture`: refreshes every snapshot in this repository.
 - `alfred/README.md`: the supported Alfred migration procedure.
+- `home/.claude/skills/`: Claude Code skills, each linked into `~/.claude/skills/`. `course-exam-notes` builds textbook-style exam notes from a course folder; its `PROMPT.md` lists what files to provide and a prompt to copy.
 
 The live `Alfred.alfredpreferences` bundle is intentionally excluded. It may contain workflow credentials and executable files; Alfred's built-in sync is a better transport for it.
 

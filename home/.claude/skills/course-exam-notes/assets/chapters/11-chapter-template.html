@@ -1,0 +1,58 @@
+<!--
+  CHAPTER TEMPLATE. Copy to 11-w01.html, 12-w02.html, ... and replace every "w01" id prefix.
+  The section's data-num drives automatic numbering: h2s become "1.1, 1.2 …", figures "Figure 1.k".
+  data-group puts the chapter under a heading in the contents rail (e.g. "Weeks 1–4").
+  Numbering is by POSITION: inserting a new h2 later shifts every later § number, and prose like "§1.4" goes stale.
+  Prefer adding h3s inside existing h2s once cross-references exist; retitling an h2 is always safe if its id is kept.
+  See references/components.md for every component used below.
+-->
+<section class="chapter" id="w01" data-num="1" data-label="W1" data-short="Short chapter name" data-group="Weeks 1–4">
+<div class="titleblock">
+  <div class="tb-main">
+    <div class="tb-kicker">Week 1 · Lecture 1 · Tutorial 1</div>
+    <h1>Chapter Title</h1>
+    <p class="tb-sub">One sentence listing what the chapter covers.</p>
+  </div>
+  <div class="tb-side"><div>Sheet</div><div>01</div></div>
+</div>
+
+<p class="lede">Open with a concrete situation or problem the chapter's ideas solve, then say why the lecture covers it and how it connects to the previous chapter. 4–6 sentences.</p>
+
+<h2 id="w01-first-topic">A title that says what this section is for</h2>
+<p>Context first: what problem existed, who had it, what was tried before. Then the idea.</p>
+<div class="box def"><p>A <dfn>term</dfn> is … (define it where it is first needed, in plain words, then precisely).</p></div>
+<div class="box ex" data-label="Worked example · name it">
+<p>Problem statement with concrete numbers.</p>
+<div class="step"><b>Step 1</b><div>Reasoning, with units.</div></div>
+<div class="step"><b>Step 2</b><div>…</div></div>
+</div>
+<div class="box key"><p>The one thing to remember from this section.</p></div>
+
+<h2 id="w01-second-topic">…</h2>
+<figure class="fig"><pre class="seq" data-actors="Client|Server">
+Client -> Server : request
+Server --> Client : reply
+</pre><figcaption>What the figure shows and why it matters.</figcaption></figure>
+
+<div class="box read"><ul>
+<li><b>Author, <i>Book title</i></b>: Ch. N "Chapter name" (§N.k what it adds beyond these notes).</li>
+</ul></div>
+
+<p class="checks-h">Check yourself</p>
+<details class="check"><summary>A question in the style of the exam?</summary><div><p>Model answer, with the reasoning.</p></div></details>
+
+<h2 id="w01-slides">The lecture slides, point by point</h2>
+<p>Every content slide of the lecture, in order, with the facts on it and where these notes explain them.</p>
+<div class="tw"><table>
+<thead><tr><th>Slide</th><th>Points to know</th></tr></thead>
+<tbody>
+<tr><td>Slide title</td><td>Every fact on the slide, compressed. <a href="#w01-first-topic">§1.1</a></td></tr>
+</tbody></table></div>
+
+<h2 id="w01-terms">Key terms</h2>
+<div class="tw"><table class="glossary">
+<thead><tr><th>Term</th><th>Meaning</th></tr></thead>
+<tbody>
+<tr><td>Term</td><td>One- or two-sentence definition.</td></tr>
+</tbody></table></div>
+</section>

@@ -1,0 +1,96 @@
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <marker id="ah" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink)"/></marker>
+    <marker id="ah-acc" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--accent)"/></marker>
+    <marker id="ah-bad" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--bad)"/></marker>
+    <marker id="ah-ok" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ok)"/></marker>
+    <marker id="ah-mute" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z" style="fill:var(--ink2)"/></marker>
+  </defs>
+</svg>
+
+<header class="topbar">
+  <button class="btn" id="railToggle" aria-controls="rail" aria-expanded="false">Contents</button>
+  <span class="tb-title" id="tbTitle">{{TITLE}}</span>
+</header>
+<div class="scrim" id="scrim"></div>
+<nav class="rail" id="rail" aria-label="Chapters">
+  <a class="brand" href="#home"><b>{{TITLE}}</b><span>{{SUBTITLE}}</span></a>
+  <div id="railList"></div>
+  <div class="grp">Theme</div>
+  <div class="theme" id="themeBtns">
+    <button class="btn" data-t="system">System</button><button class="btn" data-t="light">Light</button><button class="btn" data-t="dark">Dark</button>
+  </div>
+</nav>
+
+<script>
+/* ---------- shared helpers (used by chapter widgets) ---------- */
+window.N = {
+  fmt(x, d=3){ if(!isFinite(x)) return '∞'; const a=Math.abs(x); if(a!==0 && (a<1e-3||a>=1e7)) return x.toExponential(2); return (+x.toFixed(d)).toString(); },
+  pct(x, d=4){ return (+(x*100).toFixed(d)).toString()+'%'; },
+  el(tag, attrs={}, html=''){ const e=document.createElementNS('http://www.w3.org/2000/svg', tag); for(const k in attrs) e.setAttribute(k, attrs[k]); if(html!==undefined && html!=='') e.textContent=String(html); return e; },
+  esc(s){ return String(s).replace(/[&<>"]/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c])); }
+};
+
+/* ---------- sequence diagrams: <pre class="seq" data-actors="A|B|C"> spec lines </pre> ----------
+   A -> B : msg    solid       A => B : msg   accent      A --> B : msg  dashed reply
+   A ~> B : msg    red/failure A -x B : msg   lost msg    note A : text   note A..C : text
+   log A : text    durable-log box   crash A : text   red cross   == phase label   gap        */
+function renderSeq(pre){
+  const actors = pre.dataset.actors.split('|').map(s=>s.trim());
+  const lines = pre.textContent.split('\n').map(s=>s.trim()).filter(Boolean);
+  const n = actors.length, M = 70, colW = Math.max(150, Math.min(230, 640/(Math.max(n-1,1))));
+  const W = Math.max(560, M*2 + colW*(n-1));
+  const xs = actors.map((a,i)=> n===1 ? W/2 : M + i*((W-2*M)/(n-1)));
+  const idx = name => { const i = actors.indexOf(name); if(i<0) throw new Error('unknown actor '+name); return i; };
+  const wrap = (txt, px) => { const max = Math.max(8, Math.floor(px/6.9)); const words = txt.split(' '); const out=[]; let cur='';
+    for(const w of words){ if((cur+' '+w).trim().length>max && cur){ out.push(cur); cur=w; } else cur=(cur+' '+w).trim(); } if(cur) out.push(cur); return out; };
+  const items = []; let y = 58;
+  for(const ln of lines){
+    let m;
+    if(ln==='gap'){ y+=14; continue; }
+    if(ln.startsWith('==')){ items.push({k:'div', y:y+12, t:ln.replace(/^=+\s*/,'')}); y+=34; continue; }
+    const sep = ln.indexOf(' : '); const head = sep<0 ? ln : ln.slice(0,sep).trim(); const label = sep<0 ? '' : ln.slice(sep+3).trim();
+    if((m = head.match(/^(note|log)\s+(.+)$/))){
+      const parts=m[2].split('..'); const a=idx(parts[0].trim()), b=parts[1]?idx(parts[1].trim()):a; const x1=Math.min(xs[a],xs[b]), x2=Math.max(xs[a],xs[b]);
+      const w = Math.max(x2-x1+120, 180); const cx=(x1+x2)/2; const L = wrap(label, w-16);
+      items.push({k:m[1], x:Math.max(4,Math.min(cx-w/2, W-4-w)), y:y, w:w, h:L.length*16+10, L}); y += L.length*16+22; continue; }
+    if((m = head.match(/^crash\s+(.+)$/))){ items.push({k:'crash', x:xs[idx(m[1].trim())], y:y+8, t:label}); y+=36; continue; }
+    if((m = head.match(/^(.+?)\s(-->|->|=>|~>|-x)\s(.+)$/))){
+      const a=idx(m[1].trim()), b=idx(m[3].trim()); const self=a===b; const span = self? 140 : Math.abs(xs[b]-xs[a])-12;
+      const L = wrap(label, span); y += (L.length-1)*15;
+      items.push({k:'arr', a, b, kind:m[2], y:y+18, L, self}); y += self? 52 : 36; continue; }
+    items.push({k:'note', x:W/2-160, y, w:320, h:26, L:[ln]}); y+=38;
+  }
+  const H = y + 16;
+  const svg = N.el('svg', {viewBox:`0 0 ${W} ${H}`, role:'img', 'aria-label':'Sequence diagram: '+actors.join(', ')});
+  actors.forEach((a,i)=>{ svg.appendChild(N.el('line',{x1:xs[i],y1:40,x2:xs[i],y2:H-6,class:'ln-mute'}));
+    const bw=Math.max(84, a.length*8+22); svg.appendChild(N.el('rect',{x:xs[i]-bw/2,y:6,width:bw,height:30,rx:2,class:'bx'}));
+    svg.appendChild(N.el('text',{x:xs[i],y:26,'text-anchor':'middle',class:'t-m'},a)).style.fontWeight='600'; });
+  for(const it of items){
+    if(it.k==='div'){ svg.appendChild(N.el('line',{x1:10,y1:it.y,x2:W-10,y2:it.y,class:'grid'}));
+      const t=N.el('text',{x:14,y:it.y-5,class:'t-mono t-acc'},it.t.toUpperCase()); svg.appendChild(t); }
+    else if(it.k==='note'||it.k==='log'){ svg.appendChild(N.el('rect',{x:it.x,y:it.y,width:it.w,height:it.h,rx:2,class: it.k==='log'?'bx-warn':'bx2'}));
+      it.L.forEach((s,j)=> svg.appendChild(N.el('text',{x:it.x+it.w/2,y:it.y+18+j*16,'text-anchor':'middle',class:'t-s'+(it.k==='log'?' t-warn':'')},s))); }
+    else if(it.k==='crash'){ const g=N.el('g'); g.appendChild(N.el('path',{d:`M${it.x-9},${it.y-9} L${it.x+9},${it.y+9} M${it.x+9},${it.y-9} L${it.x-9},${it.y+9}`,class:'ln-bad'})).style.strokeWidth='3';
+      g.appendChild(N.el('text',{x:it.x+16,y:it.y+5,class:'t-s t-bad'},it.t)); svg.appendChild(g); }
+    else if(it.k==='arr'){
+      const x1=xs[it.a], x2=xs[it.b], dir = x2>=x1?1:-1;
+      const cls = {'->':'ln','=>':'ln-acc','-->':'ln','~>':'ln-bad','-x':'ln-bad'}[it.kind];
+      const mk = {'->':'ah','=>':'ah-acc','-->':'ah','~>':'ah-bad','-x':''}[it.kind];
+      const ly = it.y - 6 - (it.L.length-1)*15;
+      if(it.self){ const p=N.el('path',{d:`M${x1},${it.y} h46 v22 h-42`,class:cls,'marker-end':`url(#${mk||'ah'})`}); svg.appendChild(p);
+        it.L.forEach((s,j)=> svg.appendChild(N.el('text',{x:x1+54,y:it.y+15+j*15,class:'t-s'},s))); continue; }
+      let xe = x2 - dir*3; if(it.kind==='-x') xe = x1 + (x2-x1)*0.62;
+      const l = N.el('line',{x1:x1+dir*2,y1:it.y,x2:xe,y2:it.y,class:cls}); if(mk) l.setAttribute('marker-end',`url(#${mk})`);
+      if(it.kind==='-->') l.style.strokeDasharray='6 4'; svg.appendChild(l);
+      if(it.kind==='-x'){ svg.appendChild(N.el('path',{d:`M${xe-7},${it.y-7} L${xe+7},${it.y+7} M${xe+7},${it.y-7} L${xe-7},${it.y+7}`,class:'ln-bad'})).style.strokeWidth='2.4'; }
+      const cx=(x1+(it.kind==='-x'?xe:x2))/2;
+      it.L.forEach((s,j)=> svg.appendChild(N.el('text',{x:cx,y:ly+j*15,'text-anchor':'middle',class:'t-s'+(it.kind==='~>'||it.kind==='-x'?' t-bad':it.kind==='=>'?' t-acc':'')},s)));
+    }
+  }
+  const wrapDiv = document.createElement('div'); wrapDiv.className='canvas'; wrapDiv.appendChild(svg); pre.replaceWith(wrapDiv);
+}
+</script>
+
+<main id="main">

@@ -45,6 +45,12 @@ link_path "$repo_dir/home/.config/thefuck" "$user_dir/.config/thefuck"
 link_path "$repo_dir/home/.hammerspoon" "$user_dir/.hammerspoon"
 link_path "$repo_dir/home/.bash_profile" "$user_dir/.bash_profile"
 
+# Claude Code skills: link each one so skills installed elsewhere in ~/.claude/skills are left alone.
+for skill_dir in "$repo_dir"/home/.claude/skills/*/; do
+  skill_name="$(basename "$skill_dir")"
+  link_path "${skill_dir%/}" "$user_dir/.claude/skills/$skill_name"
+done
+
 # Spicetify rewrites config-xpui.ini with machine-specific paths whenever it
 # runs, so it is copied rather than linked and the repo copy is a reference.
 if [[ ! -e "$user_dir/.config/spicetify/config-xpui.ini" ]]; then

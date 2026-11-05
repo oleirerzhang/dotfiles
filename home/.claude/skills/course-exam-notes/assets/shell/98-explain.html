@@ -1,0 +1,163 @@
+
+<div id="askBtn" class="ask-btn" hidden>
+  <button type="button" class="btn primary" id="askGo">Explain this</button>
+  <form class="ask-custom" id="askCustom" autocomplete="off"><input type="text" id="askCustomIn" placeholder="Or ask anything about this…" aria-label="Custom request about the highlighted text" maxlength="400"><button type="submit" class="btn" id="askCustomGo" aria-label="Send request">Ask</button></form>
+</div>
+<aside id="askCard" class="ask-card" hidden role="dialog" aria-label="Quick explanation">
+  <div class="ask-head"><span>Quick explainer</span><button type="button" class="btn" id="askClose" aria-label="Close explainer">✕</button></div>
+  <div class="ask-body">
+    <p class="ask-q" id="askQ"></p>
+    <div class="ask-a" id="askA"></div>
+    <div class="ask-row" id="askModes">
+      <button type="button" class="btn" data-mode="simpler">Even simpler</button>
+      <button type="button" class="btn" data-mode="example">Give an example</button>
+      <button type="button" class="btn" data-mode="exam">How might it be examined?</button>
+    </div>
+    <form class="ask-form" id="askForm"><input type="text" id="askIn" placeholder="Ask a follow-up…" autocomplete="off" aria-label="Follow-up question"><button class="btn primary" type="submit">Ask</button></form>
+    <p class="ask-note">Short answers from a fast Claude model. Check anything important against the chapter.</p>
+  </div>
+</aside>
+<script>
+/* Highlight any text in the notes, press "Explain this", and a fast Claude model streams a short explanation.
+   Uses the artifact's `sample` capability; where that isn't available (e.g. the local file) the feature stays hidden. */
+(async function(){
+  if(!(window.claude && typeof window.claude.use==='function')) return;
+  let sample = null;
+  try{ sample = await window.claude.use('sample'); }catch(e){ sample = null; }
+  if(!sample) return;
+
+  const $=id=>document.getElementById(id);
+  const btn=$('askBtn'), card=$('askCard'), Q=$('askQ'), A=$('askA');
+  let sel=null, convo=[], ctl=null, busy=false;
+
+  const fmt = t => N.esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>')
+    .split(/\n{2,}/).map(p=>'<p>'+p.replace(/\n/g,'<br>')+'</p>').join('');
+
+  function contextFor(range){
+    let el = range.commonAncestorContainer; if(el.nodeType!==1) el = el.parentElement;
+    const block = el.closest('p, li, td, th, .box, figcaption, .step, summary, details, .eq') || el;
+    const ch = el.closest('section.chapter');
+    let heading = '';
+    if(ch){ const hs=[...ch.querySelectorAll('h2, h3')]; for(const h of hs){ if(h.compareDocumentPosition(block) & Node.DOCUMENT_POSITION_FOLLOWING) heading = h.textContent.trim().replace(/^(\d+(?:\.\d+)*)(?=\S)/, '§$1 '); } }
+    return { chapter: ch ? ((ch.dataset.label? ch.dataset.label+' ':'') + (ch.dataset.short||'')) : '', heading,
+             around: (block.textContent||'').replace(/\s+/g,' ').trim().slice(0,900) };
+  }
+
+  function currentSelection(){
+    const s = window.getSelection(); if(!s || s.rangeCount===0 || s.isCollapsed) return null;
+    const text = s.toString().replace(/\s+/g,' ').trim(); if(text.length<2 || text.length>600) return null;
+    const range = s.getRangeAt(0); const node = range.commonAncestorContainer; const el = node.nodeType===1 ? node : node.parentElement;
+    if(!el || !el.closest('main') || el.closest('.widget, .ask-card, input, textarea, pre.seq')) return null;
+    return {text, range};
+  }
+
+  const CIn = $('askCustomIn');
+  /* While the reader types a custom request, the page selection moves into the input box. Keep the highlighted
+     range visible with the CSS Custom Highlight API where the browser supports it. */
+  const HL = (window.CSS && CSS.highlights && window.Highlight) ? CSS.highlights : null;
+  const markSel = range => { if(HL){ try{ range ? HL.set('ask-sel', new Highlight(range)) : HL.delete('ask-sel'); }catch(e){} } };
+  const typing = () => document.activeElement === CIn;
+
+  function place(range){
+    const r = range.getBoundingClientRect(); if(!r.width && !r.height){ btn.hidden = true; return; }
+    btn.hidden = false;
+    const w = btn.offsetWidth, h = btn.offsetHeight, m = 8;
+    const x = Math.min(window.innerWidth - w/2 - m, Math.max(w/2 + m, r.left + r.width/2));
+    const y = r.top > h + 56 ? r.top - 8 : r.bottom + h + 10;
+    btn.style.left = x+'px'; btn.style.top = y+'px';
+  }
+  function hidePopup(){ btn.hidden = true; markSel(null); }
+
+  let t=null;
+  function onSel(){ clearTimeout(t); t=setTimeout(()=>{
+    if(typing()){ if(sel) place(sel.range); return; }
+    const cur = currentSelection();
+    if(!cur){ hidePopup(); return; }
+    sel = cur; markSel(null); place(cur.range);
+  }, 180); }
+  document.addEventListener('selectionchange', onSel);
+  window.addEventListener('scroll', ()=>{ if(!btn.hidden && sel) place(sel.range); }, {passive:true});
+  /* buttons must not steal the selection; the input box may (we keep the range in `sel`) */
+  btn.addEventListener('mousedown', e=>{ if(e.target !== CIn) e.preventDefault(); });
+  CIn.addEventListener('focus', ()=>{ if(sel) markSel(sel.range); });
+  CIn.addEventListener('blur', ()=>{ setTimeout(()=>{ if(!btn.contains(document.activeElement)){ markSel(null); if(!currentSelection()) btn.hidden = true; } }, 150); });
+
+  async function ask(userMsg, label){
+    if(ctl) ctl.abort(); ctl = new AbortController(); const my = ctl;
+    convo.push({role:'user', content:userMsg});
+    const prev = A.innerHTML; const fu = label ? `<div class="fu">${N.esc(label)}</div>` : '';
+    const base = label ? prev + fu : '';
+    A.classList.toggle('thinking', !label); if(!label) A.textContent='Thinking…'; else A.innerHTML = base + '<p class="fu"><i>Thinking…</i></p>';
+    busy=true;
+    try{
+      const res = await sample(convo.slice(), { modelTier:'quick', signal: my.signal, cache: convo.length===1,
+        onText: ({text}) => { if(my!==ctl) return; A.classList.remove('thinking'); A.innerHTML = base + fmt(text); } });
+      if(my!==ctl) return;
+      A.classList.remove('thinking'); A.innerHTML = base + fmt(res.text) + (res.truncated?'<p class="fu">(answer cut short)</p>':'');
+      convo.push({role:'assistant', content:res.text});
+    }catch(err){
+      if(my!==ctl) return; convo.pop(); A.classList.remove('thinking');
+      if(err && err.code==='not_granted'){ A.innerHTML = base + '<p>Claude access was declined for this page, so explanations are turned off. Reload the page to be asked again.</p>'; }
+      else if(err && err.code==='rate_limited'){ A.innerHTML = base + '<p>Too many questions in a short time. Wait a moment and try again.</p>'; }
+      else if(err && err.name==='AbortError'){ A.innerHTML = prev; }
+      else { A.innerHTML = base + '<p>Couldn’t get an answer just now. Try again in a moment.</p>'; }
+    }finally{ busy=false; }
+    A.parentElement.scrollTop = A.parentElement.scrollHeight;
+  }
+
+  $('askGo').addEventListener('click', ()=>{
+    const cur = sel || currentSelection(); if(!cur) return;
+    const c = contextFor(cur.range);
+    convo = [];
+    Q.textContent = '“' + cur.text + '”' + (c.heading ? '  ·  ' + c.heading : '');
+    card.hidden = false; CIn.value = ''; hidePopup();
+    const prompt = `A student is revising for their university exam in {{COURSE}}. While reading their study notes they highlighted something they want explained very briefly.
+
+Chapter: ${c.chapter}
+Section: ${c.heading}
+Surrounding text from the notes: "${c.around}"
+
+Highlighted: "${cur.text}"
+
+Explain what the highlighted text means, in this context, in plain language: 2 to 4 short sentences, under 90 words. Define any jargon you use. If it helps, end with one tiny concrete example. No preamble, no headings, no bullet lists, no markdown except **bold** for the key term.`;
+    ask(prompt, null);
+  });
+  $('askCustom').addEventListener('submit', e=>{
+    e.preventDefault();
+    const req = CIn.value.trim(); if(!req || !sel) return;
+    const cur = sel, c = contextFor(cur.range);
+    convo = []; CIn.value = ''; CIn.blur(); hidePopup(); window.getSelection().removeAllRanges();
+    Q.innerHTML = '“' + N.esc(cur.text) + '”' + (c.heading ? '  ·  ' + N.esc(c.heading) : '') + '<br><b>You asked:</b> ' + N.esc(req);
+    card.hidden = false;
+    const prompt = `A student is revising for their university exam in {{COURSE}}. While reading their study notes they highlighted some text and typed a request about it.
+
+Chapter: ${c.chapter}
+Section: ${c.heading}
+Surrounding text from the notes: "${c.around}"
+
+Highlighted: "${cur.text}"
+
+Their request: "${req}"
+
+Do exactly what they asked, about the highlighted text in this context. Be brief: under 120 words unless the request needs more. Plain language; define any jargon you use. If they ask for names, titles or wording to put in their notes, give 3 to 5 options, one per line, each with a few words on why it fits. No preamble, no headings, no markdown except **bold**.`;
+    ask(prompt, null);
+  });
+  CIn.addEventListener('keydown', e=>{ if(e.key==='Escape'){ CIn.value=''; CIn.blur(); hidePopup(); } });
+  const MODES = {
+    simpler: ['Even simpler', 'Explain it again even more simply, as if to someone who has never studied this subject, in at most 2 sentences.'],
+    example: ['Give an example', 'Give one short, concrete, realistic example that makes this clear (under 70 words). No preamble.'],
+    exam: ['How might it be examined?', 'In 2 or 3 sentences: how might this be tested in the exam (MCQ, short answer, calculation or scenario), and what should a good answer mention? No preamble.']
+  };
+  $('askModes').addEventListener('click', e=>{ const m = e.target.dataset.mode; if(!m || !convo.length || busy) return; ask(MODES[m][1], MODES[m][0]); });
+  $('askForm').addEventListener('submit', e=>{ e.preventDefault(); const v=$('askIn').value.trim(); if(!v || !convo.length || busy) return;
+    $('askIn').value=''; ask(v + '\n\n(Answer briefly: under 100 words, plain language, no headings.)', v); });
+  $('askClose').addEventListener('click', ()=>{ if(ctl) ctl.abort(); ctl=null; card.hidden = true; });
+  document.addEventListener('keydown', e=>{ if(e.key==='Escape' && !card.hidden){ if(ctl) ctl.abort(); ctl=null; card.hidden=true; } });
+
+  /* tell readers the feature exists */
+  const tip = document.querySelector('#home .lede');
+  if(tip){ const p=document.createElement('div'); p.className='box ok'; p.dataset.label='Quick explainer';
+    p.innerHTML='<p>Highlight any word or sentence in these notes and press <b>Explain this</b> for a short plain-language explanation from Claude, with buttons for an even simpler version, an example, or how it might be examined. Or type your own request in the box beside the button, such as "suggest a section title for these points" or "turn this into a flashcard", and press Enter.</p>';
+    tip.after(p); }
+})();
+</script>

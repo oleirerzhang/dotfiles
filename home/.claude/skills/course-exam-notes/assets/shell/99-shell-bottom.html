@@ -1,0 +1,94 @@
+
+</main>
+
+<script>
+(function(){
+  const chapters = [...document.querySelectorAll('section.chapter')];
+  const store = {
+    get(k, d){ try{ const v = localStorage.getItem(k); return v==null? d : JSON.parse(v); }catch(e){ return d; } },
+    set(k, v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+  };
+  let revised = new Set(store.get('{{KEY}}-revised', []));
+
+  /* sequence diagrams */
+  document.querySelectorAll('pre.seq').forEach(p=>{ try{ renderSeq(p); }catch(e){ console.warn(e); } });
+
+  /* number sections and figures; give h2s ids */
+  chapters.forEach(ch=>{
+    const num = ch.dataset.num; let k=0, f=0;
+    ch.querySelectorAll('h2').forEach(h=>{ k++; if(!h.id) h.id = ch.id+'-'+k;
+      if(num && /^\d+$/.test(num)){ const s=document.createElement('span'); s.className='sn'; s.textContent=num+'.'+k; h.prepend(s); } });
+    ch.querySelectorAll('figure.fig figcaption').forEach(fc=>{ f++; const b=document.createElement('b');
+      b.textContent = (num && /^\d+$/.test(num) ? 'Figure '+num+'.'+f : 'Figure '+f) + '. '; fc.prepend(b); });
+  });
+
+  /* rail */
+  const railList = document.getElementById('railList');
+  let grp = null, ol = null;
+  chapters.forEach(ch=>{
+    if(ch.dataset.group !== grp){ grp = ch.dataset.group; const g=document.createElement('div'); g.className='grp'; g.textContent=grp; railList.appendChild(g);
+      ol=document.createElement('ol'); railList.appendChild(ol); }
+    const li=document.createElement('li'); const a=document.createElement('a'); a.className='ch'; a.href='#'+ch.id; a.dataset.ch=ch.id;
+    a.innerHTML = `<span class="n">${ch.dataset.label||''}</span><span>${N.esc(ch.dataset.short||ch.id)}</span><span class="tick" aria-hidden="true"></span>`;
+    li.appendChild(a); const sub=document.createElement('ol'); sub.className='secs'; sub.hidden=true; sub.dataset.for=ch.id;
+    ch.querySelectorAll('h2').forEach(h=>{ const l=document.createElement('li'); const x=document.createElement('a'); x.href='#'+h.id;
+      x.textContent = h.textContent.replace(/^\d+\.\d+/, m=>m+'  '); l.appendChild(x); sub.appendChild(l); });
+    li.appendChild(sub); ol.appendChild(li);
+  });
+  const paintTicks = ()=> document.querySelectorAll('.rail a.ch').forEach(a=> a.querySelector('.tick').textContent = revised.has(a.dataset.ch)?'✓':'');
+
+  /* chapter footers */
+  chapters.forEach((ch,i)=>{
+    const prev=chapters[i-1], next=chapters[i+1];
+    const foot=document.createElement('div'); foot.className='ch-foot';
+    foot.innerHTML = (prev? `<a class="nav" href="#${prev.id}"><small>← Previous</small>${N.esc(prev.dataset.short)}</a>` : '<span></span>') +
+      `<label class="mid"><input type="checkbox" data-rev="${ch.id}" ${revised.has(ch.id)?'checked':''}> Mark as revised</label>` +
+      (next? `<a class="nav" href="#${next.id}" style="text-align:right"><small>Next →</small>${N.esc(next.dataset.short)}</a>` : '<span></span>');
+    ch.appendChild(foot);
+  });
+  document.addEventListener('change', e=>{ const id=e.target.dataset && e.target.dataset.rev; if(!id) return;
+    e.target.checked ? revised.add(id) : revised.delete(id); store.set('{{KEY}}-revised',[...revised]); paintTicks(); });
+  paintTicks();
+
+  /* router */
+  const rail=document.getElementById('rail'), scrim=document.getElementById('scrim'), tog=document.getElementById('railToggle');
+  const closeRail=()=>{ rail.classList.remove('open'); scrim.classList.remove('open'); tog.setAttribute('aria-expanded','false'); };
+  tog.addEventListener('click',()=>{ const o=!rail.classList.contains('open'); rail.classList.toggle('open',o); scrim.classList.toggle('open',o); tog.setAttribute('aria-expanded',String(o)); });
+  scrim.addEventListener('click', closeRail);
+  function route(){
+    const token = decodeURIComponent(location.hash.slice(1)) || 'home';
+    let target = document.getElementById(token); let ch = target && target.closest('section.chapter');
+    if(!ch){ ch = chapters[0]; target = ch; }
+    chapters.forEach(c=> c.hidden = (c!==ch));
+    document.querySelectorAll('.rail a.ch').forEach(a=> a.classList.toggle('on', a.dataset.ch===ch.id));
+    document.querySelectorAll('.rail .secs').forEach(s=> s.hidden = s.dataset.for!==ch.id);
+    document.getElementById('tbTitle').textContent = (ch.dataset.label? ch.dataset.label+' · ':'') + (ch.dataset.short||'');
+    closeRail();
+    if(target===ch) window.scrollTo(0,0); else requestAnimationFrame(()=> target.scrollIntoView({block:'start'}));
+    if(target.tagName==='DETAILS') target.open = true;
+  }
+  window.addEventListener('hashchange', route);
+  route();
+
+  /* theme */
+  const applyTheme=t=>{ if(t==='system') document.documentElement.removeAttribute('data-theme'); else document.documentElement.setAttribute('data-theme',t);
+    document.querySelectorAll('#themeBtns .btn').forEach(b=> b.classList.toggle('primary', b.dataset.t===t)); };
+  applyTheme(store.get('{{KEY}}-theme','system'));
+  document.getElementById('themeBtns').addEventListener('click', e=>{ const t=e.target.dataset.t; if(!t) return; store.set('{{KEY}}-theme',t); applyTheme(t); });
+
+  /* glossary: gather every chapter's key-terms table */
+  const gl = document.getElementById('glossaryList');
+  if(gl){
+    const rows=[];
+    chapters.forEach(ch=> ch.querySelectorAll('table.glossary tbody tr').forEach(tr=>{ const td=tr.querySelectorAll('td'); if(td.length>=2)
+      rows.push({t:td[0].textContent.trim(), d:td[1].innerHTML, ch:ch.id, lab:(ch.dataset.label||'')+' '+(ch.dataset.short||'')}); }));
+    rows.sort((a,b)=> a.t.localeCompare(b.t, undefined, {sensitivity:'base'}));
+    gl.innerHTML = rows.map(r=>`<div class="gl-item" data-s="${N.esc((r.t+' '+r.d.replace(/<[^>]+>/g,'')).toLowerCase())}"><b>${N.esc(r.t)}</b><a class="src tag" href="#${r.ch}">${N.esc(r.lab.trim())}</a><p>${r.d}</p></div>`).join('');
+    const cnt=document.getElementById('glossaryCount'); if(cnt) cnt.textContent = rows.length;
+    const q=document.getElementById('glossarySearch');
+    q.addEventListener('input',()=>{ const v=q.value.trim().toLowerCase(); let shown=0;
+      gl.querySelectorAll('.gl-item').forEach(it=>{ const ok=!v || it.dataset.s.includes(v); it.hidden=!ok; if(ok) shown++; });
+      if(cnt) cnt.textContent = shown; });
+  }
+})();
+</script>
