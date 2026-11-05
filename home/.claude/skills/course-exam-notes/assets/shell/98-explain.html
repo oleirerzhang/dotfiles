@@ -4,7 +4,7 @@
   <form class="ask-custom" id="askCustom" autocomplete="off"><input type="text" id="askCustomIn" placeholder="Or ask anything about this…" aria-label="Custom request about the highlighted text" maxlength="400"><button type="submit" class="btn" id="askCustomGo" aria-label="Send request">Ask</button></form>
 </div>
 <aside id="askCard" class="ask-card" hidden role="dialog" aria-label="Quick explanation">
-  <div class="ask-head"><span>Quick explainer</span><button type="button" class="btn" id="askClose" aria-label="Close explainer">✕</button></div>
+  <div class="ask-head"><span>Quick explainer</span><div class="ask-tools"><button type="button" class="btn" id="askDel" title="Delete this saved explanation and its marker" hidden>Delete</button><button type="button" class="btn" id="askClose" aria-label="Close explainer" title="Close (it stays saved: click the marker after the highlight to reopen)">✕</button></div></div>
   <div class="ask-body">
     <p class="ask-q" id="askQ"></p>
     <div class="ask-a" id="askA"></div>
@@ -29,6 +29,91 @@
   const $=id=>document.getElementById(id);
   const btn=$('askBtn'), card=$('askCard'), Q=$('askQ'), A=$('askA');
   let sel=null, convo=[], ctl=null, busy=false;
+
+  /* ---------- saved sessions ----------
+     Each explanation is kept as plain text in this browser's storage: the highlighted text, where it was, and the
+     conversation so far. Reopening one just redisplays it (no model call); only a new follow-up asks Claude again. */
+  const SK = '{{KEY}}-asks', MAX = 300;
+  const store = { get(){ try{ return JSON.parse(localStorage.getItem(SK) || '[]'); }catch(e){ return []; } },
+                  set(v){ try{ localStorage.setItem(SK, JSON.stringify(v.slice(-MAX))); }catch(e){} } };
+  let saved = store.get(), sess = null;           /* sess = the session shown in the card */
+  const ranges = new Map();                      /* session id -> live Range in the page */
+  const SAVEDHL = (window.CSS && CSS.highlights && window.Highlight) ? new Highlight() : null;
+  if(SAVEDHL){ try{ CSS.highlights.set('ask-saved', SAVEDHL); }catch(e){} }
+  const squash = s => (s||'').replace(/\s+/g,'');
+  const BLOCKS = 'p, li, td, th, .box, figcaption, .step, summary, details, .eq';
+  const elOf = r => { const n = r.commonAncestorContainer; return n.nodeType===1 ? n : n.parentElement; };
+
+  /* find `text` inside `root`, ignoring whitespace differences, and return a Range over it */
+  function findRange(root, text){
+    const target = squash(text); if(!target) return null;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT, { acceptNode: n =>
+      n.parentElement && n.parentElement.closest('script, style, .ask-pin, svg') ? NodeFilter.FILTER_REJECT : NodeFilter.FILTER_ACCEPT });
+    let hay = '', map = [], n;
+    while((n = w.nextNode())){ const s = n.nodeValue; for(let i=0;i<s.length;i++){ if(!/\s/.test(s[i])){ hay += s[i]; map.push([n,i]); } } }
+    const k = hay.indexOf(target); if(k < 0) return null;
+    const r = document.createRange(), e = map[k + target.length - 1];
+    r.setStart(map[k][0], map[k][1]); r.setEnd(e[0], e[1] + 1); return r;
+  }
+
+  function addPin(s, range){
+    ranges.set(s.id, range); if(SAVEDHL) SAVEDHL.add(range);
+    const pin = document.createElement('button'); pin.type = 'button'; pin.className = 'ask-pin'; pin.dataset.ask = s.id;
+    pin.title = 'Reopen this explanation'; pin.setAttribute('aria-label', 'Reopen the saved explanation of: ' + s.text.slice(0,80));
+    pin.innerHTML = '<svg viewBox="0 0 16 16" aria-hidden="true"><path d="M2.5 3.5h11v7h-6l-3 2.5v-2.5h-2z" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linejoin="round"/></svg>';
+    /* put the pin right after the last visible character of the highlight (not after trailing whitespace
+       or at an element boundary, which for a whole list would land between <li>s) */
+    const root = range.commonAncestorContainer.nodeType===1 ? range.commonAncestorContainer : range.commonAncestorContainer.parentNode;
+    const w = document.createTreeWalker(root, NodeFilter.SHOW_TEXT); let last = null, n;
+    while((n = w.nextNode())){ if(range.intersectsNode(n) && /\S/.test(n === range.endContainer ? n.nodeValue.slice(0, range.endOffset) : n.nodeValue)) last = n; }
+    const end = document.createRange();
+    if(last){ let off = last === range.endContainer ? range.endOffset : last.length;
+      while(off > 0 && /\s/.test(last.nodeValue[off-1])) off--; end.setStart(last, off); }
+    else { end.setStart(range.endContainer, range.endOffset); }
+    end.insertNode(pin);
+  }
+  function removePin(id){
+    const r = ranges.get(id); if(r && SAVEDHL) SAVEDHL.delete(r); ranges.delete(id);
+    document.querySelectorAll('.ask-pin[data-ask="'+id+'"]').forEach(p=>p.remove());
+  }
+  function startSession(selObj, qHtml){
+    const el = elOf(selObj.range), block = el.closest(BLOCKS) || el, ch = el.closest('section.chapter');
+    sess = { id: 'a' + Date.now().toString(36) + Math.random().toString(36).slice(2,6), ch: ch ? ch.id : '',
+            hint: squash(block.textContent).slice(0,60), text: selObj.text, q: qHtml, a: '', convo: [], t: Date.now(),
+            _range: selObj.range.cloneRange() };
+    $('askDel').hidden = true;
+  }
+  function persist(){
+    if(!sess) return;
+    sess.a = A.innerHTML; sess.convo = convo.slice(); sess.t = Date.now();
+    const { _range, ...rec } = sess;
+    const i = saved.findIndex(s=>s.id===sess.id); if(i>=0) saved[i] = rec; else saved.push(rec);
+    if(saved.length > MAX){ saved.slice(0, saved.length-MAX).forEach(s=>removePin(s.id)); saved = saved.slice(-MAX); }
+    store.set(saved);
+    if(!ranges.has(sess.id) && _range) addPin(sess, _range);
+    $('askDel').hidden = false;
+  }
+  function openSaved(id){
+    const s = saved.find(x=>x.id===id); if(!s) return;
+    if(ctl) ctl.abort(); ctl = null;
+    sess = { ...s }; convo = s.convo.slice(); Q.innerHTML = s.q; A.classList.remove('thinking'); A.innerHTML = s.a;
+    card.hidden = false; $('askDel').hidden = false; hidePopup();
+  }
+  document.addEventListener('mousedown', e=>{ if(e.target.closest('.ask-pin')) e.preventDefault(); });
+  document.addEventListener('click', e=>{ const p = e.target.closest('.ask-pin'); if(p){ e.preventDefault(); e.stopPropagation(); openSaved(p.dataset.ask); } });
+  $('askDel').addEventListener('click', ()=>{
+    if(!sess) return; const id = sess.id;
+    saved = saved.filter(s=>s.id!==id); store.set(saved); removePin(id);
+    if(ctl) ctl.abort(); ctl = null; sess = null; card.hidden = true;
+  });
+  /* put the markers back after a reload */
+  for(const s of saved.slice()){
+    const ch = s.ch && document.getElementById(s.ch); if(!ch) continue;
+    let r = null;
+    for(const b of ch.querySelectorAll(BLOCKS)){ if(squash(b.textContent).startsWith(s.hint)){ r = findRange(b, s.text); if(r) break; } }
+    if(!r) r = findRange(ch, s.text);
+    if(r) addPin(s, r);
+  }
 
   const fmt = t => N.esc(t).replace(/\*\*(.+?)\*\*/g,'<b>$1</b>').replace(/`([^`]+)`/g,'<code>$1</code>')
     .split(/\n{2,}/).map(p=>'<p>'+p.replace(/\n/g,'<br>')+'</p>').join('');
@@ -95,6 +180,7 @@
       if(my!==ctl) return;
       A.classList.remove('thinking'); A.innerHTML = base + fmt(res.text) + (res.truncated?'<p class="fu">(answer cut short)</p>':'');
       convo.push({role:'assistant', content:res.text});
+      persist();
     }catch(err){
       if(my!==ctl) return; convo.pop(); A.classList.remove('thinking');
       if(err && err.code==='not_granted'){ A.innerHTML = base + '<p>Claude access was declined for this page, so explanations are turned off. Reload the page to be asked again.</p>'; }
@@ -111,6 +197,7 @@
     convo = [];
     Q.textContent = '“' + cur.text + '”' + (c.heading ? '  ·  ' + c.heading : '');
     card.hidden = false; CIn.value = ''; hidePopup();
+    startSession(cur, Q.innerHTML);
     const prompt = `A student is revising for their university exam in {{COURSE}}. While reading their study notes they highlighted something they want explained very briefly.
 
 Chapter: ${c.chapter}
@@ -128,7 +215,7 @@ Explain what the highlighted text means, in this context, in plain language: 2 t
     const cur = sel, c = contextFor(cur.range);
     convo = []; CIn.value = ''; CIn.blur(); hidePopup(); window.getSelection().removeAllRanges();
     Q.innerHTML = '“' + N.esc(cur.text) + '”' + (c.heading ? '  ·  ' + N.esc(c.heading) : '') + '<br><b>You asked:</b> ' + N.esc(req);
-    card.hidden = false;
+    card.hidden = false; startSession(cur, Q.innerHTML);
     const prompt = `A student is revising for their university exam in {{COURSE}}. While reading their study notes they highlighted some text and typed a request about it.
 
 Chapter: ${c.chapter}
@@ -157,7 +244,7 @@ Do exactly what they asked, about the highlighted text in this context. Be brief
   /* tell readers the feature exists */
   const tip = document.querySelector('#home .lede');
   if(tip){ const p=document.createElement('div'); p.className='box ok'; p.dataset.label='Quick explainer';
-    p.innerHTML='<p>Highlight any word or sentence in these notes and press <b>Explain this</b> for a short plain-language explanation from Claude, with buttons for an even simpler version, an example, or how it might be examined. Or type your own request in the box beside the button, such as "suggest a section title for these points" or "turn this into a flashcard", and press Enter.</p>';
+    p.innerHTML='<p>Highlight any word or sentence in these notes and press <b>Explain this</b> for a short plain-language explanation from Claude, with buttons for an even simpler version, an example, or how it might be examined. Or type your own request in the box beside the button, such as "suggest a section title for these points" or "turn this into a flashcard", and press Enter. Every explanation is saved in this browser: after you close it, a small speech-bubble marker stays after the highlighted text, and clicking it reopens the explanation instantly.</p>';
     tip.after(p); }
 })();
 </script>

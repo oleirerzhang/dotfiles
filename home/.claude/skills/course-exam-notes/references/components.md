@@ -138,4 +138,4 @@ Segmented buttons: `<div class="seg"><button class="on">A</button><button>B</but
 - Glossary chapter built from every `table.glossary`, searchable.
 - `98-explain.html`: highlight any text → "Explain this" → a quick streamed explanation from Claude with
   "simpler / example / exam angle" follow-ups. Works only in the published artifact with the `sample` capability;
-  Beside the button is a box for a custom request about the highlighted text (e.g. "suggest a section title for these points"). It hides itself when opened as a local file.
+  Beside the button is a box for a custom request about the highlighted text (e.g. "suggest a section title for these points"). Each explanation is saved in the viewer's browser (localStorage, last 300): the highlighted text gets a dotted underline and a small marker that reopens it without a model call; the card has a Delete button. Markers are re-anchored after a reload by searching for the saved text in its chapter, so heavy edits to a passage can orphan its marker (harmless; it just disappears). It hides itself when opened as a local file.

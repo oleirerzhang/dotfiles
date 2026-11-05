@@ -257,6 +257,12 @@ details.check>div>:first-child{margin-top:.8em}
 .ask-custom input{width:250px;max-width:calc(100vw - 190px);min-width:90px;border:0;outline:0;background:transparent;color:var(--ink);font-family:var(--font-ui);font-size:13px;padding:5px 9px}
 .ask-custom .btn{border:0;border-left:1px solid var(--line);border-radius:0;padding:5px 10px}
 ::highlight(ask-sel){background-color:var(--accent-soft);color:inherit}
+::highlight(ask-saved){text-decoration:underline dotted var(--accent);text-decoration-thickness:1.5px;text-underline-offset:3px}
+.ask-pin{display:inline-flex;align-items:center;justify-content:center;width:17px;height:17px;margin:0 1px 0 3px;padding:0;vertical-align:text-top;border:1px solid var(--accent);border-radius:50%;background:var(--accent-soft);color:var(--accent-ink);cursor:pointer;opacity:.8;line-height:1}
+.ask-pin:hover,.ask-pin:focus-visible{opacity:1;background:var(--accent);color:var(--paper)}
+.ask-pin svg{width:11px;height:11px}
+.ask-tools{display:flex;gap:6px;align-items:center}
+@media print{.ask-pin{display:none}}
 .ask-card{position:fixed;z-index:46;right:max(16px,env(safe-area-inset-right,0px));bottom:calc(16px + env(safe-area-inset-bottom,0px));
   width:min(400px,calc(100vw - 32px));max-height:min(62vh,560px);overflow:auto;background:var(--surface);color:var(--ink);
   border:1.5px solid var(--accent);border-radius:4px;box-shadow:0 12px 40px rgba(0,0,0,.22);font-family:var(--font-ui);font-size:15px;line-height:1.55}
