@@ -25,6 +25,21 @@ vim.keymap.set({ "n", "i", "x" }, "<D-a>", "<Esc>ggVG", { desc = "Select All" })
 vim.keymap.set("x", "<D-x>", '"+d', { desc = "Cut selection to macOS clipboard" })
 vim.keymap.set("n", "<D-x>", '"+dd', { desc = "Cut line to macOS clipboard" })
 
+-- Cmd+/ toggles comments, as in LeetCode and VS Code: the current line in
+-- Normal and Insert mode (the cursor stays on the same character), or every
+-- selected line in Visual mode (the selection is kept, so a second Cmd+/
+-- undoes the first). Uses Neovim's built-in gc/gcc, so each filetype gets its
+-- own comment style: "# " for Python, "// " for C++.
+local function toggle_comment_line()
+  local row, col = unpack(vim.api.nvim_win_get_cursor(0))
+  local before = #vim.api.nvim_get_current_line()
+  vim.cmd.normal("gcc")
+  local delta = #vim.api.nvim_get_current_line() - before
+  vim.api.nvim_win_set_cursor(0, { row, math.max(0, col + delta) })
+end
+vim.keymap.set({ "n", "i" }, "<D-/>", toggle_comment_line, { desc = "Toggle Comment" })
+vim.keymap.set("x", "<D-/>", "gcgv", { remap = true, desc = "Toggle Comment" })
+
 -- Option+Left/Right: jump to the start of the previous word or the end of the
 -- next one, as in macOS text fields.
 vim.keymap.set({ "n", "x" }, "<M-Left>", "b", { desc = "Word Left" })
