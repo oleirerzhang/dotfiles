@@ -407,3 +407,6 @@ fpath=(/Users/oliverzhang/.docker/completions $fpath)
 autoload -Uz compinit
 (( ${+_comps[docker]} )) || compinit
 # End of Docker CLI completions
+
+# COMP4348 demo shortcuts
+[ -f "$HOME/.config/comp4348/aliases.zsh" ] && source "$HOME/.config/comp4348/aliases.zsh"
