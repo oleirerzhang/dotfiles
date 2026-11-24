@@ -8,7 +8,7 @@ This repository is the recovery and clean-install layer. For the current Mac-to-
 
 - `Brewfile`: Homebrew taps, formulae, casks, VS Code extensions and Mac App Store apps. Generated; edit `Brewfile.extra` instead.
 - `Brewfile.extra`: entries `brew bundle dump` cannot produce on this Mac, merged in by `scripts/capture`.
-- `home/`: shell settings, LazyVim, Kitty, fish, fastfetch, Hammerspoon, and yabai/skhd configuration.
+- `home/`: shell settings, LazyVim, Kitty, herdr, fish, fastfetch, Hammerspoon, and yabai/skhd configuration.
 - `macos/defaults.sh`: the macOS preferences this Mac differs from stock on.
 - `macos/capture-defaults`: prints the current value of every tracked preference.
 - `macos/defaults-snapshot.txt`: the audit record those two are compared against.

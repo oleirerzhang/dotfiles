@@ -261,3 +261,6 @@ cask "ruittenb/tap/spaceman"
 brew "git-delta"
 
 brew "diffnav"
+
+# Terminal workspace manager for AI coding agents
+brew "herdr"

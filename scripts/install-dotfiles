@@ -42,6 +42,8 @@ link_path "$repo_dir/home/.config/fish" "$user_dir/.config/fish"
 link_path "$repo_dir/home/.config/git" "$user_dir/.config/git"
 link_path "$repo_dir/home/.config/diffnav" "$user_dir/.config/diffnav"
 link_path "$repo_dir/home/.config/thefuck" "$user_dir/.config/thefuck"
+# herdr keeps sessions and logs beside its config, so link only the config file.
+link_path "$repo_dir/home/.config/herdr/config.toml" "$user_dir/.config/herdr/config.toml"
 link_path "$repo_dir/home/.hammerspoon" "$user_dir/.hammerspoon"
 link_path "$repo_dir/home/.bash_profile" "$user_dir/.bash_profile"
 

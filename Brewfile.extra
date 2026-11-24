@@ -53,3 +53,7 @@ cask "ruittenb/tap/spaceman"
 brew "git-delta"
 
 brew "diffnav"
+
+# Terminal workspace manager for AI coding agents. Installed here outside
+# Homebrew (~/.local/bin), so the dump does not see it.
+brew "herdr"

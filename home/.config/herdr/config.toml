@@ -1,0 +1,56 @@
+# Sumba terminal setup, 22 October 2026
+onboarding = false
+
+[theme]
+auto_switch = false
+dark_name = "catppuccin"
+light_name = "catppuccin-latte"
+
+name = "catppuccin"
+
+# Neutral pane outlines and section dividers; inherit the original backgrounds.
+[theme.custom]
+overlay0 = "#9399b2"
+surface_dim = "#7f849c"
+
+[terminal]
+default_shell = "/bin/zsh"
+shell_mode = "auto"
+new_cwd = "current"
+
+[ui]
+confirm_close = true
+# Single-line pane frames, including when only one pane is visible.
+pane_borders = "always"
+pane_outer_borders = true
+pane_gaps = false
+# Compact enough for a split terminal; room for longer project names.
+sidebar_width = 24
+sidebar_min_width = 22
+sidebar_max_width = 28
+agent_panel_sort = "spaces"
+status_indicators = "dots"
+
+# Keep the project name primary and Git information secondary.
+[ui.sidebar.spaces]
+row_gap = 1
+rows = [
+  ["state_icon", { token = "workspace", bold = false }],
+  [{ token = "branch", fg = "#a6adc8", bold = false }, "git_status"],
+]
+
+# One concise agent row: status, agent, project, tab.
+[ui.sidebar.agents]
+row_gap = 0
+rows = [
+  ["state_icon", { token = "agent", fg = "#cdd6f4", bold = false }, { token = "workspace", fg = "#bac2de", bold = false }, { token = "tab", fg = "#9399b2", bold = false }],
+]
+
+[ui.toast]
+delivery = "herdr"
+
+[ui.sound]
+enabled = false
+
+[session]
+resume_agents_on_restore = true

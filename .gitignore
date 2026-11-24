@@ -30,3 +30,7 @@ Alfred.alfredpreferences/
 # Generated local snapshots
 Brewfile.generated
 macos/mas-apps.generated.txt
+
+# Timestamped backups made before editing a config
+*.before-*
+.backup/
